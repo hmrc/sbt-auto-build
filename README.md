@@ -20,10 +20,19 @@ where 'x.x.x' is the latest release as advertised above.
 
 We have added the resolver here, if you already have the 'https://dl.bintray.com/hmrc/sbt-plugin-releases' repo added there's no need to re-add it here.
 
+Add the line ```.enablePlugins(SbtAutoBuildPlugin)``` to your project to enable the plugin.
+
 What it does
 ------------
 
-Currently sbt-auto-build automatically adds the most comonly used settings in [sbt-utils](https://github.com/hmrc/) which are currently in settings collections called scalaSettings, SbtBuildInfo, defaultSettings and HeaderSettings. It also automatically adds sbt-utils and sbt-header plugins. SBT header is on by default and will generate licence headers in your source files. As a result you don't have to conficure any of these
+When enabled sbt-auto-build automatically adds the most comonly used settings in [sbt-utils](https://github.com/hmrc/) which are the settings collections:
+
+* scalaSettings
+* SbtBuildInfo
+* defaultSettings
+* HeaderSettings
+
+It also automatically adds *sbt-utils* and *sbt-header* plugins. SBT header is on by default and will generate licence headers in your source files. As a result **you don't have to add licence headers to source files manually**
 
 To make the automatic addition of settings more visible you'll see output like this in your build:
 ```
