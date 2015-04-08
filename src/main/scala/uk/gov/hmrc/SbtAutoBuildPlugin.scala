@@ -41,8 +41,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     publishArtifact := true,
     resolvers := Seq(
       Opts.resolver.sonatypeReleases,
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.typesafeRepo("releases")
+      Resolver.bintrayRepo("hmrc", "releases")
     )
   ) ++ addedSettings
 }
