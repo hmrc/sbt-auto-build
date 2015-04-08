@@ -15,70 +15,55 @@
  */
 import sbt._
 import Keys._
+import uk.gov.hmrc.DefaultBuildSettings._
 
 object PluginBuild extends Build {
 
   import uk.gov.hmrc._
-  import DefaultBuildSettings._
-  import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
 
   val pluginName = "sbt-auto-build"
   val appVersion = "0.1.3-SNAPSHOT"
 
-  lazy val root = Project(pluginName, base = file("."), settings =
-    Seq(
-    sbtPlugin := true,
-    version := appVersion,
-    organization := "uk.gov.hmrc",
-    name := pluginName,
-    scalaVersion := "2.10.4",
-    resolvers ++= Seq(
-      Opts.resolver.sonatypeReleases
-    ),
-    publishArtifact := true,
-    publishArtifact in Test := false,
-    addSbtPlugin("uk.gov.hmrc" % "sbt-utils" % "2.5.0"),
-    addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.4.1"),
-    HeaderSettings()
-  ) ++ ArtefactDescription() ++ defaultSettings()
-  ).enablePlugins(AutomateHeaderPlugin)
+  lazy val root = (project in file("."))
+    .enablePlugins(SbtAutoBuildPlugin)
+    .settings(
+      sbtPlugin := true,
+      targetJvm := "jvm-1.7",
+      version := appVersion,
+      name := pluginName,
+      scalaVersion := "2.10.4",
+      ArtefactDescription(),
+      addSbtPlugin("uk.gov.hmrc" % "sbt-utils" % "2.5.0"),
+      addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.4.1")
+    )
 }
 
 
 object ArtefactDescription {
 
-  def apply() = Seq(
-      pomExtra := (<url>https://www.gov.uk/government/organisations/hm-revenue-customs</url>
-        <licenses>
-          <license>
-            <name>Apache 2</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-          </license>
-        </licenses>
-        <scm>
-          <connection>scm:git@github.com:hmrc/sbt-auto-build.git</connection>
-          <developerConnection>scm:git@github.com:hmrc/sbt-auto-build.git</developerConnection>
-          <url>git@github.com:hmrc/sbt-auto-build.git</url>
-        </scm>
-        <developers>
-          <developer>
-            <id>charleskubicek</id>
-            <name>Charles Kubicek</name>
-            <url>http://www.equalexperts.com</url>
-          </developer>
-          <developer>
-            <id>duncancrawford</id>
-            <name>Duncan Crawford</name>
-            <url>http://www.equalexperts.com</url>
-          </developer>
-        </developers>)
-    )
-
-}
-
-object HeaderSettings {
-  import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
-  import de.heikoseeberger.sbtheader.license.Apache2_0
-
-  def apply() = headers := Map("scala" -> Apache2_0("2015", "HM Revenue & Customs"))
+  def apply() =
+    pomExtra := <url>https://www.gov.uk/government/organisations/hm-revenue-customs</url>
+      <licenses>
+        <license>
+          <name>Apache 2</name>
+          <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+      </licenses>
+      <scm>
+        <connection>scm:git@github.com:hmrc/sbt-auto-build.git</connection>
+        <developerConnection>scm:git@github.com:hmrc/sbt-auto-build.git</developerConnection>
+        <url>git@github.com:hmrc/sbt-auto-build.git</url>
+      </scm>
+      <developers>
+        <developer>
+          <id>charleskubicek</id>
+          <name>Charles Kubicek</name>
+          <url>http://www.equalexperts.com</url>
+        </developer>
+        <developer>
+          <id>duncancrawford</id>
+          <name>Duncan Crawford</name>
+          <url>http://www.equalexperts.com</url>
+        </developer>
+      </developers>
 }
