@@ -18,4 +18,4 @@ addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "x.x.x")
 
 where 'x.x.x' is the latest release as advertised above.
 
-We have added the resolver here, if you already have the 'hmrc/sbt-plugin-releases' repo added there's no need to re-add it here.
+We have added the resolver here, if you already have the 'https://dl.bintray.com/hmrc/sbt-plugin-releases' repo added there's no need to re-add it here.
