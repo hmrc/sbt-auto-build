@@ -24,26 +24,29 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   import uk.gov.hmrc.DefaultBuildSettings._
 
-  override def trigger = allRequirements
-
   val logger = ConsoleLogger()
 
   private val addedSettings: Seq[Setting[_]] =
     scalaSettings ++ SbtBuildInfo() ++ defaultSettings() ++ HeaderSettings()
 
-  logger.info(s"SbtAutoBuildPlugin adding ${addedSettings.size} build settings:")
-  logger.info(addedSettings.map { s => s.key.key.label }.sorted.mkString(", "))
-
   override def requires = AutomateHeaderPlugin
+  override def trigger = noTrigger
 
-  override lazy val projectSettings = Seq(
-    targetJvm := "jvm-1.8",
-    publishArtifact := true,
-    resolvers := Seq(
-      Opts.resolver.sonatypeReleases,
-      Resolver.bintrayRepo("hmrc", "releases")
-    )
-  ) ++ addedSettings
+  override lazy val projectSettings = {
+
+    // FIXME logging is output here because I can't find a place to hook
+    // into for when the plugin is loaded and used
+    logger.info(s"SbtAutoBuildPlugin adding ${addedSettings.size} build settings:")
+    logger.info(addedSettings.map { s => s.key.key.label }.sorted.mkString(", "))
+
+    Seq(
+      targetJvm := "jvm-1.8",
+      publishArtifact := true,
+      resolvers := Seq(
+        Opts.resolver.sonatypeReleases,
+        Resolver.bintrayRepo("hmrc", "releases")
+      )
+    )} ++ addedSettings ++ AutomateHeaderPlugin.projectSettings
 }
 
 object HeaderSettings {
