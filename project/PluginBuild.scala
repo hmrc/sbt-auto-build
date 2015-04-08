@@ -23,7 +23,7 @@ object PluginBuild extends Build {
   import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
 
   val pluginName = "sbt-auto-build"
-  val appVersion = "0.1.2"
+  val appVersion = "0.1.3-SNAPSHOT"
 
   lazy val root = Project(pluginName, base = file("."), settings =
     Seq(
