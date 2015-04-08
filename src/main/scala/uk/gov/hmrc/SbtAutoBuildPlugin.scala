@@ -42,6 +42,8 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     Seq(
       targetJvm := "jvm-1.8",
       publishArtifact := true,
+      publishArtifact in Test := false,
+      publishArtifact in IntegrationTest := false,
       resolvers := Seq(
         Opts.resolver.sonatypeReleases,
         Resolver.bintrayRepo("hmrc", "releases")
