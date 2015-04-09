@@ -26,8 +26,14 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   val logger = ConsoleLogger()
 
-  private val addedSettings: Seq[Setting[_]] =
-    scalaSettings ++ SbtBuildInfo() ++ defaultSettings() ++ HeaderSettings()
+  private val autoAddedSettings: Seq[Setting[_]] =
+    scalaSettings ++
+    SbtBuildInfo() ++
+    defaultSettings() ++
+    HeaderSettings() ++
+    PublishSettings() ++
+    AutomateHeaderPlugin.projectSettings ++
+      Resolvers()
 
   override def requires = AutomateHeaderPlugin
   override def trigger = noTrigger
@@ -36,19 +42,32 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
     // FIXME logging is output here because I can't find a place to hook
     // into for when the plugin is loaded and used
-    logger.info(s"SbtAutoBuildPlugin adding ${addedSettings.size} build settings:")
-    logger.info(addedSettings.map { s => s.key.key.label }.sorted.mkString(", "))
+    logger.info(s"SbtAutoBuildPlugin adding ${autoAddedSettings.size} build settings (duplicates represent different scopes):")
+    logger.info(autoAddedSettings.map { s => s.key.scopedKey.key.label}.sorted.mkString(", "))
 
     Seq(
-      targetJvm := "jvm-1.8",
-      publishArtifact := true,
-      publishArtifact in Test := false,
-      publishArtifact in IntegrationTest := false,
-      resolvers := Seq(
-        Opts.resolver.sonatypeReleases,
-        Resolver.bintrayRepo("hmrc", "releases")
-      )
-    )} ++ addedSettings ++ AutomateHeaderPlugin.projectSettings
+      targetJvm := "jvm-1.8" //FIXME if this doesn't go here projects need to declare it
+    )} ++ autoAddedSettings
+}
+
+object Resolvers{
+  def apply() =
+    resolvers := Seq(
+      Opts.resolver.sonatypeReleases,
+      Resolver.bintrayRepo("hmrc", "releases")
+  )
+}
+
+object PublishSettings{
+  def apply() = Seq(
+    publishArtifact := true,
+    publishArtifact in Test := false,
+    publishArtifact in IntegrationTest := false,
+    publishArtifact in (Test, packageDoc) := false,
+    publishArtifact in (Test, packageSrc) := false,
+    publishArtifact in (IntegrationTest, packageDoc) := false,
+    publishArtifact in (IntegrationTest, packageSrc) := false
+  )
 }
 
 object HeaderSettings {
