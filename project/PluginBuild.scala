@@ -22,7 +22,7 @@ object PluginBuild extends Build {
   import uk.gov.hmrc._
 
   val pluginName = "sbt-auto-build"
-  val appVersion = "0.1.3-SNAPSHOT"
+  val appVersion = "0.1.4"
 
   lazy val root = (project in file("."))
     .enablePlugins(SbtAutoBuildPlugin)
