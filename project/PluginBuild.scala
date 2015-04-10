@@ -13,27 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import sbt.Keys._
 import sbt._
-import Keys._
 import uk.gov.hmrc.DefaultBuildSettings._
 
 object PluginBuild extends Build {
 
-  import uk.gov.hmrc._
-
   val pluginName = "sbt-auto-build"
-  val appVersion = "0.1.4"
+  val appVersion = "0.1.5-SNAPSHOT"
 
   lazy val root = (project in file("."))
-    .enablePlugins(SbtAutoBuildPlugin)
     .settings(
       sbtPlugin := true,
       targetJvm := "jvm-1.7",
+      organization := "uk.gov.hmrc",
       version := appVersion,
       name := pluginName,
       scalaVersion := "2.10.4",
       ArtefactDescription(),
-      addSbtPlugin("uk.gov.hmrc" % "sbt-utils" % "2.5.0"),
+      addSbtPlugin("uk.gov.hmrc" % "sbt-utils" % "2.6.0"),
       addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.4.1")
     )
 }

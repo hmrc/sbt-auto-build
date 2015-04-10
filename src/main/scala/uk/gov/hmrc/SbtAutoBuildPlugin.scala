@@ -19,35 +19,39 @@ package uk.gov.hmrc
 import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
 import sbt._
 import sbt.Keys._
+import scala.util.matching.Regex
 
 object SbtAutoBuildPlugin extends AutoPlugin {
 
   import uk.gov.hmrc.DefaultBuildSettings._
+  import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 
   val logger = ConsoleLogger()
 
-  private val autoAddedSettings: Seq[Setting[_]] =
+  val autoSourceHeader = SettingKey[Boolean]("autoSourceHeader", "generate open-source header licences")
+
+  private val defaultAutoSettings: Seq[Setting[_]] =
     scalaSettings ++
     SbtBuildInfo() ++
     defaultSettings() ++
-    HeaderSettings() ++
     PublishSettings() ++
-    AutomateHeaderPlugin.projectSettings ++
-      Resolvers()
+    Resolvers() ++ Seq(autoSourceHeader := true)
 
   override def requires = AutomateHeaderPlugin
   override def trigger = noTrigger
 
   override lazy val projectSettings = {
 
-    // FIXME logging is output here because I can't find a place to hook
-    // into for when the plugin is loaded and used
-    logger.info(s"SbtAutoBuildPlugin adding ${autoAddedSettings.size} build settings (duplicates represent different scopes):")
-    logger.info(autoAddedSettings.map { s => s.key.scopedKey.key.label}.sorted.mkString(", "))
+    val addedSettings = Seq(
+      targetJvm := "jvm-1.8", //FIXME if this doesn't go here projects need to declare it
+      headers := { if(autoSourceHeader.value) HeaderSettings() else Map.empty }
+    ) ++ defaultAutoSettings
 
-    Seq(
-      targetJvm := "jvm-1.8" //FIXME if this doesn't go here projects need to declare it
-    )} ++ autoAddedSettings
+    logger.info(s"SbtAutoBuildPlugin adding ${addedSettings.size} build settings (duplicates represent different scopes):")
+    logger.info(addedSettings.map { s => s.key.scopedKey.key.label}.sorted.mkString(", "))
+
+    addedSettings
+  }
 }
 
 object Resolvers{
@@ -71,9 +75,10 @@ object PublishSettings{
 }
 
 object HeaderSettings {
-  import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
   import de.heikoseeberger.sbtheader.license.Apache2_0
   import org.joda.time.DateTime
 
-  def apply() = headers := Map("scala" -> Apache2_0(DateTime.now().getYear.toString, "HM Revenue & Customs"))
+  def apply(): Map[String, (Regex, String)] = {
+    Map("scala" -> Apache2_0(DateTime.now().getYear.toString, "HM Revenue & Customs"))
+  }
 }
