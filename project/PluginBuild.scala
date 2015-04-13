@@ -26,7 +26,7 @@ import scala.util.matching.Regex
 object PluginBuild extends Build {
 
   val pluginName = "sbt-auto-build"
-  val pluginVersion = "0.1.5-SNAPSHOT"
+  val pluginVersion = "0.1.5"
 
   private val standardSettings: Seq[Setting[_]] =
     scalaSettings ++
