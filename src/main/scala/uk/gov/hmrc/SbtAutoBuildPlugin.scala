@@ -35,7 +35,9 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     SbtBuildInfo() ++
     defaultSettings() ++
     PublishSettings() ++
-    Resolvers() ++ Seq(autoSourceHeader := true)
+    Resolvers() ++ 
+    ArtefactDescription() ++ 
+    Seq(autoSourceHeader := true)
 
   override def requires = AutomateHeaderPlugin
   override def trigger = noTrigger
@@ -78,7 +80,46 @@ object HeaderSettings {
   import de.heikoseeberger.sbtheader.license.Apache2_0
   import org.joda.time.DateTime
 
-  def apply(): Map[String, (Regex, String)] = {
-    Map("scala" -> Apache2_0(DateTime.now().getYear.toString, "HM Revenue & Customs"))
+  val copyrightYear = DateTime.now().getYear.toString
+  val copyrightOwner = "HM Revenue & Customs"
+
+  def apply() = {  
+    Map(
+      "scala" -> Apache2_0(copyrightYear, copyrightOwner),
+      "conf" -> Apache2_0(copyrightYear, copyrightOwner, "#")
+      )
   }
+}
+
+object ArtefactDescription {
+
+  import scala.xml.transform.{RewriteRule, RuleTransformer}
+  import scala.xml.{Node => XmlNode, NodeSeq => XmlNodeSeq, _}
+
+  def apply() = Seq(
+      organizationHomepage := Some(url("https://www.gov.uk/government/organisations/hm-revenue-customs")),
+      licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
+      
+      // workaround for sbt/sbt#1834
+      pomPostProcess := { (node: XmlNode) =>
+        new RuleTransformer(new RewriteRule {
+          override def transform(node: XmlNode): XmlNodeSeq = node match {
+            case e: Elem
+              if e.label == "developers" =>
+              <developers>
+                {developers.value.map { dev =>
+                <developer>
+                  <id>{dev.id}</id>
+                  <name>{dev.name}</name>
+                  <email>{dev.email}</email>
+                  <url>{dev.url}</url>
+                </developer>
+              }}
+              </developers>
+            case _ => node
+          }
+        }).transform(node).head
+      }
+    )
+
 }

@@ -3,4 +3,4 @@ resolvers += Resolver.url("hmrc-sbt-plugin-releases",
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-utils" % "2.6.0")
 
-addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.4.1")
+addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.5.0")

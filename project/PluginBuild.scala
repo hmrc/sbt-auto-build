@@ -26,7 +26,7 @@ import scala.util.matching.Regex
 object PluginBuild extends Build {
 
   val pluginName = "sbt-auto-build"
-  val pluginVersion = "0.1.5"
+  val pluginVersion = "0.1.6-SNAPSHOT"
 
   private val standardSettings: Seq[Setting[_]] =
     scalaSettings ++
@@ -78,9 +78,7 @@ object HeaderSettings {
   import de.heikoseeberger.sbtheader.license.Apache2_0
   import org.joda.time.DateTime
 
-  def apply(): Map[String, (Regex, String)] = {
-    Map("scala" -> Apache2_0(DateTime.now().getYear.toString, "HM Revenue & Customs"))
-  }
+  def apply() = Map("scala" -> Apache2_0(DateTime.now().getYear.toString, "HM Revenue & Customs"))
 }
 
 
