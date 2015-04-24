@@ -151,7 +151,11 @@ object ArtefactDescription {
     val subsections = config.getSubsections("remote")
     println(s"subsections :  $subsections (${subsections.size()})")
     val rcu = config.getSubsections("remote")
-      .map(remoteName => config.getString("remote", remoteName, "url"))
+      .map(remoteName => {
+      val url = config.getString("remote", remoteName, "url")
+      println(s"url : " + url)
+      url
+    })
       .headOption.getOrElse(throw new IllegalArgumentException("No git remote connection URL could be found"))
     val r1 = "^(git:\\/\\/)".r
     r1.replaceFirstIn(rcu, "git@")
