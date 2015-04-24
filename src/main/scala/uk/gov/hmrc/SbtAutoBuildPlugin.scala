@@ -148,6 +148,8 @@ object ArtefactDescription {
 
   lazy val remoteConnectionUrl = {
     val config = gitConfig
+    val subsections = config.getSubsections("remote")
+    println(s"subsections :  $subsections (${subsections.size()})")
     val rcu = config.getSubsections("remote")
       .map(remoteName => config.getString("remote", remoteName, "url"))
       .headOption.getOrElse(throw new IllegalArgumentException("No git remote connection URL could be found"))
