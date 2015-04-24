@@ -99,10 +99,10 @@ object ArtefactDescription {
   import scala.collection.JavaConversions._
 
   def apply() = Seq(
-    homepage := Some(url(browserUrl)),
+    homepage := Some(url(browserUrl())),
     organizationHomepage := Some(url("https://www.gov.uk/government/organisations/hm-revenue-customs")),
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
-    scmInfo := Some(ScmInfo(url(browserUrl), remoteConnectionUrl)),
+    scmInfo := Some(ScmInfo(url(browserUrl()), remoteConnectionUrl)),
 
     // workaround for sbt/sbt#1834
     pomPostProcess := {
@@ -139,13 +139,20 @@ object ArtefactDescription {
     }
   )
 
-  lazy val browserUrl = remoteConnectionUrl.replace("git@", "https://")
+  def browserUrl(connectionUrl : String = remoteConnectionUrl) = {
+    val r1 = "^(git@|git:\\/\\/|.git)".r
+    val s = r1.replaceFirstIn(connectionUrl, "")
+    val r2 = ":hmrc".r
+    s"https://${r2.replaceFirstIn(s, "/hmrc")}"
+  }
 
   lazy val remoteConnectionUrl = {
     val config = gitConfig
-    config.getSubsections("remote")
+    val rcu = config.getSubsections("remote")
       .map(remoteName => config.getString("remote", remoteName, "url"))
       .headOption.getOrElse(throw new IllegalArgumentException("No git remote connection URL could be found"))
+    val r1 = "^(git:\\/\\/)".r
+    r1.replaceFirstIn(rcu, "git@")
   }
 
   private lazy val gitConfig = {

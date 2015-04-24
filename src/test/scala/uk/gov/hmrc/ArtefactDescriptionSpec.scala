@@ -24,10 +24,16 @@ class ArtefactDescriptionSpec extends WordSpec with ShouldMatchers {
     "find the remote connection url" in {
       ArtefactDescription.remoteConnectionUrl shouldBe "git@github.com:hmrc/sbt-auto-build.git"
     }
-
-    "create the browser url" in {
-      ArtefactDescription.browserUrl shouldBe "https://github.com:hmrc/sbt-auto-build.git"
-    }
   }
 
+  "create the browser url" should {
+
+    "be created when connection url starting with 'git@'" in {
+      ArtefactDescription.browserUrl("git@github.com:hmrc/sbt-auto-build") shouldBe "https://github.com/hmrc/sbt-auto-build"
+    }
+
+    "be created when connection url starting with 'git://'" in {
+      ArtefactDescription.browserUrl("git://github.com:hmrc/sbt-auto-build") shouldBe "https://github.com/hmrc/sbt-auto-build"
+    }
+  }
 }
