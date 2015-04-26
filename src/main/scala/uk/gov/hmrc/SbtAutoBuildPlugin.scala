@@ -101,7 +101,7 @@ object ArtefactDescription {
   def apply() = Seq(
     homepage := Some(url(browserUrl())),
     organizationHomepage := Some(url("https://www.gov.uk/government/organisations/hm-revenue-customs")),
-    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
+    licenses +=("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
     scmInfo := Some(ScmInfo(url(browserUrl()), remoteConnectionUrl)),
 
     // workaround for sbt/sbt#1834
@@ -111,54 +111,49 @@ object ArtefactDescription {
       import scala.xml.{Node => XmlNode, NodeSeq => XmlNodeSeq, _}
 
       (node: XmlNode) =>
-      new RuleTransformer(new RewriteRule {
-        override def transform(node: XmlNode): XmlNodeSeq = node match {
-          case e: Elem
-            if e.label == "developers" =>
-            <developers>
-              {developers.value.map { dev =>
-              <developer>
-                <id>
-                  {dev.id}
-                </id>
-                <name>
-                  {dev.name}
-                </name>
-                <email>
-                  {dev.email}
-                </email>
-                <url>
-                  {dev.url}
-                </url>
-              </developer>
-            }}
-            </developers>
-          case _ => node
-        }
-      }).transform(node).head
+        new RuleTransformer(new RewriteRule {
+          override def transform(node: XmlNode): XmlNodeSeq = node match {
+            case e: Elem
+              if e.label == "developers" =>
+              <developers>
+                {developers.value.map { dev =>
+                <developer>
+                  <id>
+                    {dev.id}
+                  </id>
+                  <name>
+                    {dev.name}
+                  </name>
+                  <email>
+                    {dev.email}
+                  </email>
+                  <url>
+                    {dev.url}
+                  </url>
+                </developer>
+              }}
+              </developers>
+            case _ => node
+          }
+        }).transform(node).head
     }
   )
 
-  def browserUrl(connectionUrl : String = remoteConnectionUrl) = {
-    val r1 = "^(git@|git:\\/\\/|.git)".r
-    val s = r1.replaceFirstIn(connectionUrl, "")
-    val r2 = ":hmrc".r
-    s"https://${r2.replaceFirstIn(s, "/hmrc")}"
+  private val colonHmrc = ":hmrc".r
+  private val forwardSlashHmrc = "\\/hmrc".r
+
+  def browserUrl(connectionUrl: String = remoteConnectionUrl) = {
+    val s = "^(git@|git:\\/\\/|.git)".r.replaceFirstIn(connectionUrl, "")
+    s"https://${colonHmrc.replaceFirstIn(s, "/hmrc")}"
   }
 
   lazy val remoteConnectionUrl = {
     val config = gitConfig
-    val subsections = config.getSubsections("remote")
-    println(s"subsections :  $subsections (${subsections.size()})")
-    val rcu = config.getSubsections("remote")
-      .map(remoteName => {
-      val url = config.getString("remote", remoteName, "url")
-      println(s"url : " + url)
-      url
-    })
+    val originUrl = config.getSubsections("remote")
+      .map(remoteName => config.getString("remote", remoteName, "url"))
       .headOption.getOrElse(throw new IllegalArgumentException("No git remote connection URL could be found"))
-    val r1 = "^(git:\\/\\/)".r
-    r1.replaceFirstIn(rcu, "git@")
+    val gitTcpRex = "^(git:\\/\\/)".r
+    forwardSlashHmrc.replaceFirstIn(gitTcpRex.replaceFirstIn(originUrl, "git@"), ":hmrc")
   }
 
   private lazy val gitConfig = {
