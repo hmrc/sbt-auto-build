@@ -26,7 +26,7 @@ import scala.util.matching.Regex
 object PluginBuild extends Build {
 
   val pluginName = "sbt-auto-build"
-  val pluginVersion = "0.1.5"
+  val pluginVersion = "0.2.0"
 
   private val standardSettings: Seq[Setting[_]] =
     scalaSettings ++
@@ -49,7 +49,7 @@ object PluginBuild extends Build {
       targetJvm := "jvm-1.7",
       headers := HeaderSettings(),
       addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.4.1"),
-      addSbtPlugin("uk.gov.hmrc" % "sbt-utils" % "2.6.0")
+      addSbtPlugin("uk.gov.hmrc" % "sbt-utils" % "2.7.0")
     )
 }
 
