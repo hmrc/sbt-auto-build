@@ -98,6 +98,8 @@ object ArtefactDescription {
 
   import scala.collection.JavaConversions._
 
+  private val logger = ConsoleLogger()
+
   def apply() = Seq(
     homepage := Some(url(browserUrl())),
     organizationHomepage := Some(url("https://www.gov.uk/government/organisations/hm-revenue-customs")),
@@ -148,10 +150,13 @@ object ArtefactDescription {
   }
 
   lazy val remoteConnectionUrl = {
-    val config = gitConfig
-    val originUrl = config.getSubsections("remote")
-      .map(remoteName => config.getString("remote", remoteName, "url"))
-      .headOption.getOrElse(throw new IllegalArgumentException("No git remote connection URL could be found"))
+    val originUrl = gitConfig.getSubsections("remote")
+      .map(remoteName => {
+          val remoteUrl = gitConfig.getString("remote", remoteName, "url")
+          logger.info(s"The config section 'remote' with subsection '$remoteName' had a url of '$remoteUrl'")
+          remoteUrl
+        }
+      ).headOption.getOrElse(throw new IllegalArgumentException("No git remote connection URL could be found"))
     val gitTcpRex = "^(git:\\/\\/)".r
     forwardSlashHmrc.replaceFirstIn(gitTcpRex.replaceFirstIn(originUrl, "git@"), ":hmrc")
   }
