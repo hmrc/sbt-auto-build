@@ -17,6 +17,7 @@
 package uk.gov.hmrc
 
 import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
+import org.eclipse.jgit.lib.StoredConfig
 import sbt.Keys._
 import sbt._
 
@@ -96,15 +97,12 @@ object HeaderSettings {
 
 object ArtefactDescription {
 
-  import scala.collection.JavaConversions._
-
   private val logger = ConsoleLogger()
 
   def apply() = Seq(
-    homepage := Some(url(browserUrl())),
+    homepage := Some(url(Git.browserUrl())),
     organizationHomepage := Some(url("https://www.gov.uk/government/organisations/hm-revenue-customs")),
-    licenses +=("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
-    scmInfo := Some(ScmInfo(url(browserUrl()), remoteConnectionUrl)),
+    scmInfo := Some(ScmInfo(url(Git.browserUrl()), Git.remoteConnectionUrl)),
 
     // workaround for sbt/sbt#1834
     pomPostProcess := {
@@ -115,23 +113,14 @@ object ArtefactDescription {
       (node: XmlNode) =>
         new RuleTransformer(new RewriteRule {
           override def transform(node: XmlNode): XmlNodeSeq = node match {
-            case e: Elem
-              if e.label == "developers" =>
+            case e: Elem if e.label == "developers" =>
               <developers>
                 {developers.value.map { dev =>
                 <developer>
-                  <id>
-                    {dev.id}
-                  </id>
-                  <name>
-                    {dev.name}
-                  </name>
-                  <email>
-                    {dev.email}
-                  </email>
-                  <url>
-                    {dev.url}
-                  </url>
+                  <id>{dev.id}</id>
+                  <name>{dev.name}</name>
+                  <email>{dev.email}</email>
+                  <url>{dev.url}</url>
                 </developer>
               }}
               </developers>
@@ -140,28 +129,43 @@ object ArtefactDescription {
         }).transform(node).head
     }
   )
+}
+
+object Git {
+
+  val logger = ConsoleLogger()
+
+  import scala.collection.JavaConversions._
 
   private val colonHmrc = ":hmrc".r
   private val forwardSlashHmrc = "\\/hmrc".r
 
   def browserUrl(connectionUrl: String = remoteConnectionUrl) = {
-    val s = "^(git@|git:\\/\\/|.git)".r.replaceFirstIn(connectionUrl, "")
-    s"https://${colonHmrc.replaceFirstIn(s, "/hmrc")}"
+    val removedProtocol = removeProtocol(connectionUrl)
+    s"https://${colonHmrc.replaceFirstIn(removedProtocol, "/hmrc")}"
   }
 
   lazy val remoteConnectionUrl = {
     val originUrl = gitConfig.getSubsections("remote")
-      .map(remoteName => {
-          val remoteUrl = gitConfig.getString("remote", remoteName, "url")
-          logger.info(s"The config section 'remote' with subsection '$remoteName' had a url of '$remoteUrl'")
-          remoteUrl
-        }
-      ).headOption.getOrElse(throw new IllegalArgumentException("No git remote connection URL could be found"))
+      .map(remoteUrl)
+      .headOption.getOrElse(throw new IllegalArgumentException("No git remote connection URL could be found"))
+
     val gitTcpRex = "^(git:\\/\\/)".r
-    forwardSlashHmrc.replaceFirstIn(gitTcpRex.replaceFirstIn(originUrl, "git@"), ":hmrc")
+    val gitAt: String = gitTcpRex.replaceFirstIn(originUrl, "git@")
+    forwardSlashHmrc.replaceFirstIn(gitAt, ":hmrc")
   }
 
-  private lazy val gitConfig = {
+  private def remoteUrl(remoteName: String): String = {
+    val remoteUrl = gitConfig.getString("remote", remoteName, "url")
+    logger.info(s"The config section 'remote' with subsection '$remoteName' had a url of '$remoteUrl'")
+    remoteUrl
+  }
+
+  private def removeProtocol(connectionUrl: String): String = {
+    "^(git@|git:\\/\\/|.git)".r.replaceFirstIn(connectionUrl, "")
+  }
+
+  private lazy val gitConfig: StoredConfig = {
     import org.eclipse.jgit.storage.file.FileRepositoryBuilder
     val builder = new FileRepositoryBuilder
     val repository = builder.readEnvironment.findGitDir.build
