@@ -63,6 +63,7 @@ object Resolvers {
   def apply() =
     resolvers := Seq(
       Opts.resolver.sonatypeReleases,
+      "typesafe-releases" at "http://repo.typesafe.com/typesafe/releases/",
       Resolver.bintrayRepo("hmrc", "releases")
     )
 }
