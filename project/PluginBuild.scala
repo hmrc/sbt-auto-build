@@ -48,7 +48,7 @@ object PluginBuild extends Build {
       scalaVersion := "2.10.4",
       targetJvm := "jvm-1.7",
       headers := HeaderSettings(),
-      addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.4.1"),
+      addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.5.0"),
       addSbtPlugin("uk.gov.hmrc" % "sbt-utils" % "2.7.0"),
       libraryDependencies ++= Seq(
         "org.eclipse.jgit" % "org.eclipse.jgit.pgm" % "3.7.0.201502260915-r",
