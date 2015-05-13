@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc
 
-import org.scalatest.{ShouldMatchers, WordSpec}
+import org.scalatest.{OptionValues, ShouldMatchers, WordSpec}
 
-class ArtefactDescriptionSpec extends WordSpec with ShouldMatchers {
+class ArtefactDescriptionSpec extends WordSpec with ShouldMatchers with OptionValues{
 
   "remote url" should {
     "find the remote connection url" in {
-      Git.remoteConnectionUrl shouldBe "git@github.com:hmrc/sbt-auto-build.git"
+      Git.findRemoteConnectionUrl.value shouldBe "git@github.com:hmrc/sbt-auto-build.git"
     }
   }
 
