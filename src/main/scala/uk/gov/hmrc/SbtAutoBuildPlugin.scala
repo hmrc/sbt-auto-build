@@ -104,9 +104,9 @@ object ArtefactDescription {
   private val logger = ConsoleLogger()
 
   def apply() = Seq(
-    homepage := Some(url(Git.browserUrl())),
+    homepage := Git.browserUrl map url,
     organizationHomepage := Some(url("https://www.gov.uk/government/organisations/hm-revenue-customs")),
-    scmInfo := Some(ScmInfo(url(Git.browserUrl()), Git.remoteConnectionUrl)),
+    scmInfo := buildScmInfo,
 
     // workaround for sbt/sbt#1834
     pomPostProcess := {
@@ -133,6 +133,12 @@ object ArtefactDescription {
         }).transform(node).head
     }
   )
+
+  def buildScmInfo:Option[ScmInfo]={
+    for(connUrl <- Git.findRemoteConnectionUrl;
+        browserUrl <- Git.browserUrl)
+        yield ScmInfo(url(browserUrl), connUrl)
+  }
 }
 
 object Git {
@@ -144,19 +150,25 @@ object Git {
   private val colonHmrc = ":hmrc".r
   private val forwardSlashHmrc = "\\/hmrc".r
 
-  def browserUrl(connectionUrl: String = remoteConnectionUrl) = {
-    val removedProtocol = removeProtocol(connectionUrl)
+  def browserUrl:Option[String] = {
+    findRemoteConnectionUrl map browserUrl
+  }
+  
+  def browserUrl(remoteConnectionUrl:String):String = {
+    val removedProtocol = removeProtocol(remoteConnectionUrl)
     s"https://${colonHmrc.replaceFirstIn(removedProtocol, "/hmrc")}"
   }
 
-  lazy val remoteConnectionUrl = {
-    val originUrl = gitConfig.getSubsections("remote")
+  lazy val findRemoteConnectionUrl: Option[String] = {
+    val originUrlOpt = gitConfig.getSubsections("remote")
       .map(remoteUrl)
-      .headOption.getOrElse(throw new IllegalArgumentException("No git remote connection URL could be found"))
+      .headOption
 
-    val gitTcpRex = "^(git:\\/\\/)".r
-    val gitAt: String = gitTcpRex.replaceFirstIn(originUrl, "git@")
-    forwardSlashHmrc.replaceFirstIn(gitAt, ":hmrc")
+    originUrlOpt.map { originUrl =>
+      val gitTcpRex = "^(git:\\/\\/)".r
+      val gitAt: String = gitTcpRex.replaceFirstIn(originUrl, "git@")
+      forwardSlashHmrc.replaceFirstIn(gitAt, ":hmrc")
+    }
   }
 
   private def remoteUrl(remoteName: String): String = {
