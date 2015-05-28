@@ -20,13 +20,11 @@ import sbt.Keys._
 import sbt._
 import uk.gov.hmrc.DefaultBuildSettings._
 import uk.gov.hmrc.SbtBuildInfo
-
-import scala.util.matching.Regex
+import uk.gov.hmrc.versioning.SbtGitVersioning
 
 object PluginBuild extends Build {
 
   val pluginName = "sbt-auto-build"
-  val pluginVersion = "0.6.0-SNAPSHOT"
 
   private val standardSettings: Seq[Setting[_]] =
     scalaSettings ++
@@ -38,11 +36,10 @@ object PluginBuild extends Build {
 
 
   lazy val root = (project in file("."))
-    .enablePlugins(AutomateHeaderPlugin)
+    .enablePlugins(AutomateHeaderPlugin, SbtGitVersioning)
     .settings(standardSettings)
     .settings(
       name := pluginName,
-      version := pluginVersion,
       sbtPlugin := true,
       organization := "uk.gov.hmrc",
       scalaVersion := "2.10.4",

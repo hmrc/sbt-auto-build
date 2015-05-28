@@ -5,3 +5,5 @@ resolvers ++=
 addSbtPlugin("uk.gov.hmrc" % "sbt-utils" % "2.7.0")
 
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.5.0")
+
+addSbtPlugin("uk.gov.hmrc" % "sbt-git-versioning" % "0.4.0")
