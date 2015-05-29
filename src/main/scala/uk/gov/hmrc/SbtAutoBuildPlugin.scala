@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc
 
+import java.util
+
 import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
 import org.eclipse.jgit.lib.StoredConfig
 import sbt.Keys._
@@ -104,7 +106,7 @@ object ArtefactDescription {
   private val logger = ConsoleLogger()
 
   def apply() = Seq(
-    homepage := Git.browserUrl map url,
+    homepage := Git.homepage,
     organizationHomepage := Some(url("https://www.gov.uk/government/organisations/hm-revenue-customs")),
     scmInfo := buildScmInfo,
 
@@ -150,13 +152,15 @@ object Git {
   private val colonHmrc = ":hmrc".r
   private val forwardSlashHmrc = "\\/hmrc".r
 
+  def homepage:Option[URL] = browserUrl map url
+
   def browserUrl:Option[String] = {
     findRemoteConnectionUrl map browserUrl
   }
-  
+
   def browserUrl(remoteConnectionUrl:String):String = {
     val removedProtocol = removeProtocol(remoteConnectionUrl)
-    s"https://${colonHmrc.replaceFirstIn(removedProtocol, "/hmrc")}"
+    s"https://${colonHmrc.replaceFirstIn(removedProtocol.toLowerCase, "/hmrc")}"
   }
 
   lazy val findRemoteConnectionUrl: Option[String] = {

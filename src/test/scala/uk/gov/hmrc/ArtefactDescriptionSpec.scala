@@ -35,5 +35,10 @@ class ArtefactDescriptionSpec extends WordSpec with ShouldMatchers with OptionVa
     "be created when connection url starting with 'git://'" in {
       Git.browserUrl("git://github.com:hmrc/sbt-auto-build") shouldBe "https://github.com/hmrc/sbt-auto-build"
     }
+
+    "be created when connection url has repo organisation in capitals" in {
+      Git.browserUrl("git://github.com:HMRC/sbt-auto-build") shouldBe "https://github.com/hmrc/sbt-auto-build"
+      Git.browserUrl("git://github.com:hmrc/sbt-auto-build") shouldBe "https://github.com/hmrc/sbt-auto-build"
+    }
   }
 }
