@@ -52,8 +52,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
       }
     ) ++ defaultAutoSettings
 
-    logger.info(s"SbtAutoBuildPlugin adding ${addedSettings.size} build settings (duplicates represent different scopes):")
-    logger.info(addedSettings.map { s => s.key.scopedKey.key.label }.sorted.mkString(", "))
+    logger.info(s"SbtAutoBuildPlugin adding ${addedSettings.size} build settings")
 
     addedSettings
   }
