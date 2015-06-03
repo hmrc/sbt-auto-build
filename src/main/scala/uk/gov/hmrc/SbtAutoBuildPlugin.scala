@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc
 
-import java.util
-
 import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
 import org.eclipse.jgit.lib.StoredConfig
 import sbt.Keys._
