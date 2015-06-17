@@ -32,6 +32,10 @@ class ArtefactDescriptionSpec extends WordSpec with ShouldMatchers with OptionVa
       Git.browserUrl("git@github.com:hmrc/sbt-auto-build") shouldBe "https://github.com/hmrc/sbt-auto-build"
     }
 
+    "be created when connection url starting with 'git@' on a fork" in {
+      Git.browserUrl("git@github.com:user/sbt-auto-build") shouldBe "https://github.com/user/sbt-auto-build"
+    }
+
     "be created when connection url starting with 'git://'" in {
       Git.browserUrl("git://github.com:hmrc/sbt-auto-build") shouldBe "https://github.com/hmrc/sbt-auto-build"
     }

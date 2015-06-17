@@ -146,9 +146,6 @@ object Git {
 
   import scala.collection.JavaConversions._
 
-  private val colonHmrc = ":hmrc".r
-  private val forwardSlashHmrc = "\\/hmrc".r
-
   def homepage:Option[URL] = browserUrl map url
 
   def browserUrl:Option[String] = {
@@ -157,7 +154,7 @@ object Git {
 
   def browserUrl(remoteConnectionUrl:String):String = {
     val removedProtocol = removeProtocol(remoteConnectionUrl)
-    s"https://${colonHmrc.replaceFirstIn(removedProtocol.toLowerCase, "/hmrc")}"
+    s"https://${removedProtocol.toLowerCase.replaceFirst(":", "/")}"
   }
 
   lazy val findRemoteConnectionUrl: Option[String] = {
@@ -167,8 +164,7 @@ object Git {
 
     originUrlOpt.map { originUrl =>
       val gitTcpRex = "^(git:\\/\\/)".r
-      val gitAt: String = gitTcpRex.replaceFirstIn(originUrl, "git@")
-      forwardSlashHmrc.replaceFirstIn(gitAt, ":hmrc")
+      gitTcpRex.replaceFirstIn(originUrl, "git@")
     }
   }
 
