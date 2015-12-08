@@ -22,7 +22,7 @@ class ArtefactDescriptionSpec extends WordSpec with ShouldMatchers with OptionVa
 
   "remote url" should {
     "find the remote connection url" in {
-      Git.findRemoteConnectionUrl.value shouldBe "git@github.com:hmrc/sbt-auto-build.git"
+      Git.findRemoteConnectionUrl.value should (be("git@github.com:hmrc/sbt-auto-build.git") or be("https://github.com/hmrc/sbt-auto-build.git"))
     }
   }
 
