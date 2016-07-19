@@ -158,8 +158,9 @@ object Git {
   }
 
   lazy val findRemoteConnectionUrl: Option[String] = {
+
     val originUrlOpt = gitConfig.getSubsections("remote")
-      .map(remoteUrl)
+      .flatMap(remoteUrl)
       .headOption
 
     originUrlOpt.map { originUrl =>
@@ -168,8 +169,8 @@ object Git {
     }
   }
 
-  private def remoteUrl(remoteName: String): String = {
-    val remoteUrl = gitConfig.getString("remote", remoteName, "url")
+  private def remoteUrl(remoteName: String): Option[String] = {
+    val remoteUrl = Option(gitConfig.getString("remote", remoteName, "url"))
     logger.info(s"The config section 'remote' with subsection '$remoteName' had a url of '$remoteUrl'")
     remoteUrl
   }
