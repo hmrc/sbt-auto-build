@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 HM Revenue & Customs
+ * Copyright 2016 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,8 @@ class ArtefactDescriptionSpec extends WordSpec with ShouldMatchers with OptionVa
 
   "remote url" should {
     "find the remote connection url" in {
-      Git.findRemoteConnectionUrl.value should (be("git@github.com:hmrc/sbt-auto-build.git") or be("https://github.com/hmrc/sbt-auto-build.git"))
+      Git.findRemoteConnectionUrl.value should
+        fullyMatch regex("(git@github.com:([^/]*)/sbt-auto-build.git)|(https://github.com/([^/]*)/sbt-auto-build.git)")
     }
   }
 
