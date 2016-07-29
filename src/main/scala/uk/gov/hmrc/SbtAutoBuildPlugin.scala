@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 HM Revenue & Customs
+ * Copyright 2016 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.hmrc
 
 import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
-import org.eclipse.jgit.lib.StoredConfig
+import org.eclipse.jgit.lib.{BranchConfig, Repository}
 import sbt.Keys._
 import sbt._
 
@@ -140,27 +140,30 @@ object ArtefactDescription {
   }
 }
 
-object Git {
+object Git extends Git {
+  override lazy val repository: Repository = {
+    import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+    val builder = new FileRepositoryBuilder
+    builder.findGitDir.build
+  }
+}
 
+trait Git {
   val logger = ConsoleLogger()
+  val repository: Repository
 
-  import scala.collection.JavaConversions._
+  def homepage: Option[URL] = browserUrl map url
 
-  def homepage:Option[URL] = browserUrl map url
-
-  def browserUrl:Option[String] = {
+  def browserUrl: Option[String] = {
     findRemoteConnectionUrl map browserUrl
   }
 
-  def browserUrl(remoteConnectionUrl:String):String = {
-    val removedProtocol = removeProtocol(remoteConnectionUrl)
-    s"https://${removedProtocol.toLowerCase.replaceFirst(":", "/")}"
-  }
-
-  lazy val findRemoteConnectionUrl: Option[String] = {
-    val originUrlOpt = gitConfig.getSubsections("remote")
-      .map(remoteUrl)
-      .headOption
+  def findRemoteConnectionUrl: Option[String] = {
+    val config = repository.getConfig
+    assert(!repository.getBranch().isEmpty, "No current branch")
+    val branchConfig = new BranchConfig(config, repository.getBranch())
+    // lookup origin for branch
+    val originUrlOpt = Option(config.getString("remote", branchConfig.getRemote, "url"))
 
     originUrlOpt.map { originUrl =>
       val gitTcpRex = "^(git:\\/\\/)".r
@@ -168,20 +171,18 @@ object Git {
     }
   }
 
-  private def remoteUrl(remoteName: String): String = {
-    val remoteUrl = gitConfig.getString("remote", remoteName, "url")
+  private def browserUrl(remoteConnectionUrl: String): String = {
+    val removedProtocol = removeProtocol(remoteConnectionUrl)
+    s"https://${removedProtocol.toLowerCase.replaceFirst(":", "/")}"
+  }
+
+  private def remoteUrl(remoteName: String): Option[String] = {
+    val remoteUrl = Option(repository.getConfig.getString("remote", remoteName, "url"))
     logger.info(s"The config section 'remote' with subsection '$remoteName' had a url of '$remoteUrl'")
     remoteUrl
   }
 
   private def removeProtocol(connectionUrl: String): String = {
     "^(git@|git:\\/\\/|.git)".r.replaceFirstIn(connectionUrl, "")
-  }
-
-  private lazy val gitConfig: StoredConfig = {
-    import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-    val builder = new FileRepositoryBuilder
-    val repository = builder.readEnvironment.findGitDir.build
-    repository.getConfig
   }
 }

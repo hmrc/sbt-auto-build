@@ -50,7 +50,7 @@ object PluginBuild extends Build {
       addSbtPlugin("uk.gov.hmrc" % "sbt-utils" % "2.8.0"),
       libraryDependencies ++= Seq(
         "org.eclipse.jgit" % "org.eclipse.jgit.pgm" % "3.7.0.201502260915-r",
-        "org.scalatest" %% "scalatest" % "2.2.4" % "test",
+        "org.scalatest" %% "scalatest" % "2.2.6" % "test",
         "org.pegdown" % "pegdown" % "1.5.0" % "test"
       )
     )
