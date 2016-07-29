@@ -181,10 +181,12 @@ trait Git {
 
   private def browserUrl(remoteConnectionUrl: String): String = {
     val removedProtocol = removeProtocol(remoteConnectionUrl)
-    s"https://${removedProtocol.toLowerCase.replaceFirst(":", "/")}"
+    val replacedSeparator = removedProtocol.toLowerCase.replaceFirst(":", "/")
+    val removedGitSuffix = replacedSeparator.replaceFirst(".git$", "")
+    s"https://$removedGitSuffix"
   }
 
   private def removeProtocol(connectionUrl: String): String = {
-    "^(git@|git:\\/\\/|.git)".r.replaceFirstIn(connectionUrl, "")
+    "^(git@|git://|https://)".r.replaceFirstIn(connectionUrl, "")
   }
 }
