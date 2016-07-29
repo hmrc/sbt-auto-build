@@ -48,6 +48,16 @@ class ArtefactDescriptionSpec extends WordSpec with GitRepository with ShouldMat
       git.findRemoteConnectionUrl.value shouldBe "git@github.com:remote2/non-existent.git"
     }
 
+    "find the remote connection url defaulted to the remote for master when in a branch without tracking info" in {
+      gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:origin/non-existent.git")
+
+      val rev = gitHelper.createTestCommit()
+
+      gitHelper.checkoutBranch(rev)
+
+      git.findRemoteConnectionUrl.value shouldBe "git@github.com:origin/non-existent.git"
+    }
+
     "find the remote connection url when other branches have no url set" in {
       gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:origin/non-existent.git")
 
@@ -60,7 +70,7 @@ class ArtefactDescriptionSpec extends WordSpec with GitRepository with ShouldMat
       gitHelper.createTestCommit()
 
       gitHelper.checkoutNewBranch("branch1")
-      git.findRemoteConnectionUrl shouldBe (None)
+      git.findRemoteConnectionUrl.value shouldBe "git@github.com:origin/non-existent.git"
 
       gitHelper.checkoutNewBranch("branch2")
 

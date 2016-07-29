@@ -159,16 +159,20 @@ trait Git {
   }
 
   def findRemoteConnectionUrl: Option[String] = {
-    val config = repository.getConfig
-    assert(!repository.getBranch().isEmpty, "No current branch")
-    val branchConfig = new BranchConfig(config, repository.getBranch())
-    // lookup origin for branch
-    val originUrlOpt = Option(config.getString("remote", branchConfig.getRemote, "url"))
+    val currentBranchUrl = getUrlForBranch(repository.getBranch())
 
-    originUrlOpt.map { originUrl =>
+    val url = currentBranchUrl.orElse(getUrlForBranch("master"))
+
+    url.map { originUrl =>
       val gitTcpRex = "^(git:\\/\\/)".r
       gitTcpRex.replaceFirstIn(originUrl, "git@")
     }
+  }
+
+  private def getUrlForBranch(name: String) = {
+    val config = repository.getConfig
+    val branchConfig = new BranchConfig(config, name)
+    Option(config.getString("remote", branchConfig.getRemote, "url"))
   }
 
   private def browserUrl(remoteConnectionUrl: String): String = {

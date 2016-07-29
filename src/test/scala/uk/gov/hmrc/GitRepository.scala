@@ -18,6 +18,7 @@ package uk.gov.hmrc
 
 import java.nio.file.Path
 
+import org.eclipse.jgit.revwalk.RevCommit
 import org.scalatest.{Suite, BeforeAndAfterEach}
 
 import scala.reflect.io.File
@@ -83,6 +84,14 @@ class GitHelper(tempWorkDir: Path) {
     val checkout = jgit.checkout()
     checkout.setName(name)
     checkout.setCreateBranch(true)
+    checkout.call()
+  }
+
+  def checkoutBranch(commit: RevCommit) = {
+    val checkout = jgit.checkout()
+    checkout.setStartPoint(commit)
+    checkout.setCreateBranch(true)
+    checkout.setName("test")
     checkout.call()
   }
 
