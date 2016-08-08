@@ -28,7 +28,8 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   val logger = ConsoleLogger()
 
-  val autoSourceHeader = SettingKey[Boolean]("autoSourceHeader", "generate open-source header licences")
+  val autoSourceHeader = SettingKey[Boolean]("autoSourceHeader", "generate open-source headers if LICENSE file exists")
+  val forceSourceHeader = SettingKey[Boolean]("forceSourceHeader", "forces generation of open-source headers regardless of LICENSE")
 
   private val defaultAutoSettings: Seq[Setting[_]] =
     scalaSettings ++
@@ -37,7 +38,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
       PublishSettings() ++
       Resolvers() ++
       ArtefactDescription() ++
-      Seq(autoSourceHeader := true)
+      Seq(autoSourceHeader := true, forceSourceHeader := false)
 
   override def requires = AutomateHeaderPlugin
 
@@ -45,14 +46,23 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   override lazy val projectSettings = {
 
+    val license = new File("LICENSE")
+    if (license.exists())
+      logger.info("SbtAutoBuildPlugin - LICENSE file exists, sbt-header will add Apache 2.0 license headers to each source file.")
+    else
+      logger.info("SbtAutoBuildPlugin - No LICENSE found, source file Apache 2.0 header generation not required")
+
     val addedSettings = Seq(
       targetJvm := "jvm-1.8", //FIXME if this doesn't go here projects need to declare it
       headers := {
-        if (autoSourceHeader.value) HeaderSettings() else Map.empty
+        if (forceSourceHeader.value)
+          logger.info("SbtAutoBuildPlugin - forceSourceHeader setting was true, source file headers will be generated regardless of LICENSE")
+
+        if ((license.exists() && autoSourceHeader.value) || forceSourceHeader.value) HeaderSettings() else Map.empty
       }
     ) ++ defaultAutoSettings
 
-    logger.info(s"SbtAutoBuildPlugin adding ${addedSettings.size} build settings")
+    logger.info(s"SbtAutoBuildPlugin - adding ${addedSettings.size} build settings")
 
     addedSettings
   }
