@@ -161,6 +161,7 @@ object Git extends Git {
 trait Git {
   val logger = ConsoleLogger()
   val repository: Repository
+  lazy val config = repository.getConfig
 
   def homepage: Option[URL] = browserUrl map url
 
@@ -171,7 +172,7 @@ trait Git {
   def findRemoteConnectionUrl: Option[String] = {
     val currentBranchUrl = getUrlForBranch(repository.getBranch())
 
-    val url = currentBranchUrl.orElse(getUrlForBranch("master"))
+    val url = currentBranchUrl.orElse(getUrlForBranch("master")).orElse(getUrlForRemote("origin"))
 
     url.map { originUrl =>
       val gitTcpRex = "^(git:\\/\\/)".r
@@ -180,23 +181,22 @@ trait Git {
   }
 
   private def getUrlForBranch(name: String) = {
-    val config = repository.getConfig
     val branchConfig = new BranchConfig(config, name)
-    Option(config.getString("remote", branchConfig.getRemote, "url"))
+    getUrlForRemote(branchConfig.getRemote)
+  }
+
+  private def getUrlForRemote(name: String) = {
+    Option(config.getString("remote", name, "url"))
   }
 
   private def browserUrl(remoteConnectionUrl: String): String = {
     val removedProtocol = removeProtocol(remoteConnectionUrl)
-    s"https://${removedProtocol.toLowerCase.replaceFirst(":", "/")}"
-  }
-
-  private def remoteUrl(remoteName: String): Option[String] = {
-    val remoteUrl = Option(repository.getConfig.getString("remote", remoteName, "url"))
-    logger.info(s"The config section 'remote' with subsection '$remoteName' had a url of '$remoteUrl'")
-    remoteUrl
+    val replacedSeparator = removedProtocol.toLowerCase.replaceFirst(":", "/")
+    val removedGitSuffix = replacedSeparator.replaceFirst(".git$", "")
+    s"https://$removedGitSuffix"
   }
 
   private def removeProtocol(connectionUrl: String): String = {
-    "^(git@|git:\\/\\/|.git)".r.replaceFirstIn(connectionUrl, "")
+    "^(git@|git://|https://)".r.replaceFirstIn(connectionUrl, "")
   }
 }

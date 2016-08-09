@@ -58,6 +58,16 @@ class ArtefactDescriptionSpec extends WordSpec with GitRepository with ShouldMat
       git.findRemoteConnectionUrl.value shouldBe "git@github.com:origin/non-existent.git"
     }
 
+    "find the remote connection url defaulted to the origin remote when master does not exist" in {
+      gitHelper.setRemote("origin","git@github.com:origin/non-existent.git")
+
+      val rev = gitHelper.createTestCommit()
+
+      gitHelper.checkoutBranch(rev)
+
+      git.findRemoteConnectionUrl.value shouldBe "git@github.com:origin/non-existent.git"
+    }
+
     "find the remote connection url when other branches have no url set" in {
       gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:origin/non-existent.git")
 
@@ -85,22 +95,27 @@ class ArtefactDescriptionSpec extends WordSpec with GitRepository with ShouldMat
 
   "create the browser url" should {
     "be created when connection url starting with 'git@'" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:hmrc/sbt-auto-build")
+      gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:hmrc/sbt-auto-build.git")
       git.browserUrl.value shouldBe "https://github.com/hmrc/sbt-auto-build"
     }
 
     "be created when connection url starting with 'git@' on a fork" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:hmrc-collaborator/sbt-auto-build")
+      gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:hmrc-collaborator/sbt-auto-build.git")
       git.browserUrl.value shouldBe "https://github.com/hmrc-collaborator/sbt-auto-build"
     }
 
+    "be created when connection url starting with 'https://" in {
+      gitHelper.setRemoteWithBranch("origin", "master", "https://github.com/hmrc/sbt-auto-build.git")
+      git.browserUrl.value shouldBe "https://github.com/hmrc/sbt-auto-build"
+    }
+
     "be created when connection url starting with 'git://'" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git://github.com:hmrc/sbt-auto-build")
+      gitHelper.setRemoteWithBranch("origin", "master", "git://github.com:hmrc/sbt-auto-build.git")
       git.browserUrl.value shouldBe "https://github.com/hmrc/sbt-auto-build"
     }
 
     "be created when connection url has repo organisation in capitals" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git://github.com:HMRC/sbt-auto-build")
+      gitHelper.setRemoteWithBranch("origin", "master", "git://github.com:HMRC/sbt-auto-build.git")
       git.browserUrl.value shouldBe "https://github.com/hmrc/sbt-auto-build"
     }
   }
