@@ -103,6 +103,7 @@ object HeaderSettings {
   def apply() = {
     Map(
       "scala" -> Apache2_0(copyrightYear, copyrightOwner),
+      "java" -> Apache2_0(copyrightYear, copyrightOwner),
       "conf" -> Apache2_0(copyrightYear, copyrightOwner, "#")
     )
   }
