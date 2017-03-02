@@ -3,6 +3,6 @@ resolvers ++=
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.3.0")
 
-addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.5.0")
+addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.8.0")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-git-versioning" % "0.9.0")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.hmrc
 
 import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
 import org.eclipse.jgit.lib.{BranchConfig, Repository}
+import play.twirl.sbt.Import.TwirlKeys
 import sbt.Keys._
 import sbt._
 
@@ -59,7 +60,8 @@ object SbtAutoBuildPlugin extends AutoPlugin {
           logger.info("SbtAutoBuildPlugin - forceSourceHeader setting was true, source file headers will be generated regardless of LICENSE")
 
         if ((license.exists() && autoSourceHeader.value) || forceSourceHeader.value) HeaderSettings() else Map.empty
-      }
+      },
+      unmanagedSources.in(Compile, createHeaders) ++= sources.in(Compile, TwirlKeys.compileTemplates).value
     ) ++ defaultAutoSettings
 
     logger.info(s"SbtAutoBuildPlugin - adding ${addedSettings.size} build settings")
@@ -103,7 +105,8 @@ object HeaderSettings {
   def apply() = {
     Map(
       "scala" -> Apache2_0(copyrightYear, copyrightOwner),
-      "conf" -> Apache2_0(copyrightYear, copyrightOwner, "#")
+      "conf" -> Apache2_0(copyrightYear, copyrightOwner, "#"),
+      "html" -> Apache2_0(copyrightYear, copyrightOwner, "@*")
     )
   }
 }
@@ -130,10 +133,18 @@ object ArtefactDescription {
               <developers>
                 {developers.value.map { dev =>
                 <developer>
-                  <id>{dev.id}</id>
-                  <name>{dev.name}</name>
-                  <email>{dev.email}</email>
-                  <url>{dev.url}</url>
+                  <id>
+                    {dev.id}
+                  </id>
+                  <name>
+                    {dev.name}
+                  </name>
+                  <email>
+                    {dev.email}
+                  </email>
+                  <url>
+                    {dev.url}
+                  </url>
                 </developer>
               }}
               </developers>
@@ -143,10 +154,10 @@ object ArtefactDescription {
     }
   )
 
-  def buildScmInfo:Option[ScmInfo]={
-    for(connUrl <- Git.findRemoteConnectionUrl;
-        browserUrl <- Git.browserUrl)
-        yield ScmInfo(url(browserUrl), connUrl)
+  def buildScmInfo: Option[ScmInfo] = {
+    for (connUrl <- Git.findRemoteConnectionUrl;
+         browserUrl <- Git.browserUrl)
+      yield ScmInfo(url(browserUrl), connUrl)
   }
 }
 

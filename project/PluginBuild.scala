@@ -34,7 +34,6 @@ object PluginBuild extends Build {
       Resolvers() ++
       ArtefactDescription()
 
-
   lazy val root = (project in file("."))
     .enablePlugins(AutomateHeaderPlugin, SbtGitVersioning)
     .settings(standardSettings)
@@ -46,8 +45,9 @@ object PluginBuild extends Build {
       targetJvm := "jvm-1.7",
       headers := HeaderSettings(),
       resolvers += Resolver.url("hmrc-sbt-plugin-releases", url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns),
-      addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.5.0"),
+      addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.8.0"),
       addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.3.0"),
+      addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.3.0"),
       libraryDependencies ++= Seq(
         "org.eclipse.jgit" % "org.eclipse.jgit.pgm" % "3.7.0.201502260915-r",
         "org.scalatest" %% "scalatest" % "2.2.6" % "test",
@@ -77,6 +77,7 @@ object PublishSettings {
 }
 
 object HeaderSettings {
+
   import de.heikoseeberger.sbtheader.license.Apache2_0
   import org.joda.time.DateTime
 
