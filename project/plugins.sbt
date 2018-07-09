@@ -1,7 +1,7 @@
 resolvers ++=
   Seq(Resolver.url("hmrc-sbt-plugin-releases", url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns))
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.7.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.8.0")
 
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.8.0")
 
