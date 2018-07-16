@@ -19,8 +19,10 @@ import de.heikoseeberger.sbtheader.HeaderKey._
 import sbt.Keys._
 import sbt._
 import uk.gov.hmrc.DefaultBuildSettings._
-import uk.gov.hmrc.SbtBuildInfo
+import uk.gov.hmrc.SbtArtifactory.autoImport.makePublicallyAvailableOnBintray
 import uk.gov.hmrc.versioning.SbtGitVersioning
+import uk.gov.hmrc.versioning.SbtGitVersioning.majorVersion
+import uk.gov.hmrc.{SbtArtifactory, SbtBuildInfo}
 
 object PluginBuild extends Build {
 
@@ -31,36 +33,31 @@ object PluginBuild extends Build {
       SbtBuildInfo() ++
       defaultSettings() ++
       PublishSettings() ++
-      Resolvers() ++
       ArtefactDescription()
 
   lazy val root = (project in file("."))
-    .enablePlugins(AutomateHeaderPlugin, SbtGitVersioning)
+    .enablePlugins(AutomateHeaderPlugin, SbtGitVersioning, SbtArtifactory)
     .settings(standardSettings)
     .settings(
       name := pluginName,
       sbtPlugin := true,
+      majorVersion := 1,
+      makePublicallyAvailableOnBintray := true,
       organization := "uk.gov.hmrc",
       scalaVersion := "2.10.5",
       targetJvm := "jvm-1.7",
       headers := HeaderSettings(),
-      resolvers += Resolver.url("hmrc-sbt-plugin-releases", url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns),
+      addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.1.1"),
       addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.8.0"),
       addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.8.0"),
-      addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.1.1"),
       libraryDependencies ++= Seq(
         "org.eclipse.jgit" % "org.eclipse.jgit.pgm" % "3.7.0.201502260915-r",
         "org.scalatest" %% "scalatest" % "2.2.6" % "test",
         "org.pegdown" % "pegdown" % "1.5.0" % "test"
+      ),
+      resolvers := Seq(
+        Resolver.url("hmrc-sbt-plugin-releases", url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
       )
-    )
-}
-
-object Resolvers {
-  def apply() =
-    resolvers := Seq(
-      Opts.resolver.sonatypeReleases,
-      Resolver.bintrayRepo("hmrc", "releases")
     )
 }
 
@@ -68,11 +65,8 @@ object PublishSettings {
   def apply() = Seq(
     publishArtifact := true,
     publishArtifact in Test := false,
-    publishArtifact in IntegrationTest := false,
     publishArtifact in(Test, packageDoc) := false,
-    publishArtifact in(Test, packageSrc) := false,
-    publishArtifact in(IntegrationTest, packageDoc) := false,
-    publishArtifact in(IntegrationTest, packageSrc) := false
+    publishArtifact in(Test, packageSrc) := false
   )
 }
 
