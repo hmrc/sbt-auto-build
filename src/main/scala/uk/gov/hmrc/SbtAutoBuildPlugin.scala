@@ -17,10 +17,12 @@
 package uk.gov.hmrc
 
 import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
-import org.eclipse.jgit.lib.{BranchConfig, Repository}
+import org.eclipse.jgit.lib.{BranchConfig, Repository, StoredConfig}
 import play.twirl.sbt.Import.TwirlKeys
 import sbt.Keys._
 import sbt._
+
+import scala.util.matching.Regex
 
 object SbtAutoBuildPlugin extends AutoPlugin {
 
@@ -41,11 +43,11 @@ object SbtAutoBuildPlugin extends AutoPlugin {
       ArtefactDescription() ++
       Seq(autoSourceHeader := true, forceSourceHeader := false)
 
-  override def requires = AutomateHeaderPlugin
+  override def requires: Plugins = AutomateHeaderPlugin
 
-  override def trigger = noTrigger
+  override def trigger: PluginTrigger = noTrigger
 
-  override lazy val projectSettings = {
+  override lazy val projectSettings: Seq[Setting[_]] = {
 
     val license = new File("LICENSE")
     if (license.exists())
@@ -74,7 +76,7 @@ object Resolvers {
 
   val HmrcReleasesRepo = Resolver.bintrayRepo("hmrc", "releases")
 
-  def apply() =
+  def apply(): Def.Setting[Seq[Resolver]] =
     resolvers := Seq(
       Opts.resolver.sonatypeReleases,
       Resolver.typesafeRepo("releases"),
@@ -83,7 +85,7 @@ object Resolvers {
 }
 
 object PublishSettings {
-  def apply() = Seq(
+  def apply(): Seq[Def.Setting[Boolean]] = Seq(
     publishArtifact := true,
     publishArtifact in Test := false,
     publishArtifact in IntegrationTest := false,
@@ -99,10 +101,10 @@ object HeaderSettings {
   import de.heikoseeberger.sbtheader.license.Apache2_0
   import org.joda.time.DateTime
 
-  val copyrightYear = DateTime.now().getYear.toString
-  val copyrightOwner = "HM Revenue & Customs"
+  val copyrightYear: String = DateTime.now().getYear.toString
+  val copyrightOwner: String = "HM Revenue & Customs"
 
-  def apply() = {
+  def apply(): Map[String, (Regex, String)] = {
     Map(
       "scala" -> Apache2_0(copyrightYear, copyrightOwner),
       "conf" -> Apache2_0(copyrightYear, copyrightOwner, "#"),
@@ -112,8 +114,6 @@ object HeaderSettings {
 }
 
 object ArtefactDescription {
-
-  private val logger = ConsoleLogger()
 
   def apply() = Seq(
     homepage := Git.homepage,
@@ -126,7 +126,7 @@ object ArtefactDescription {
       import scala.xml.transform.{RewriteRule, RuleTransformer}
       import scala.xml.{Node => XmlNode, NodeSeq => XmlNodeSeq, _}
 
-      (node: XmlNode) =>
+      node: XmlNode =>
         new RuleTransformer(new RewriteRule {
           override def transform(node: XmlNode): XmlNodeSeq = node match {
             case e: Elem if e.label == "developers" =>
@@ -164,7 +164,7 @@ object Git extends Git {
 trait Git {
   val logger = ConsoleLogger()
   val repository: Repository
-  lazy val config = repository.getConfig
+  lazy val config: StoredConfig = repository.getConfig
 
   def homepage: Option[URL] = browserUrl map url
 
@@ -173,7 +173,7 @@ trait Git {
   }
 
   def findRemoteConnectionUrl: Option[String] = {
-    val currentBranchUrl = getUrlForBranch(repository.getBranch())
+    val currentBranchUrl = getUrlForBranch(repository.getBranch)
 
     val url = currentBranchUrl.orElse(getUrlForBranch("master")).orElse(getUrlForRemote("origin"))
 
