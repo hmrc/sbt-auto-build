@@ -1,6 +1,5 @@
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings, targetJvm}
 import uk.gov.hmrc.SbtBuildInfo
-import uk.gov.hmrc.versioning.SbtGitVersioning.majorVersion
 
 val pluginName = "sbt-auto-build"
 
