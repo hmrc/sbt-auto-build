@@ -21,6 +21,7 @@ import org.eclipse.jgit.lib.{BranchConfig, Repository, StoredConfig}
 import play.twirl.sbt.Import.TwirlKeys
 import sbt.Keys._
 import sbt._
+import uk.gov.hmrc.versioning.SbtGitVersioning
 
 import scala.util.matching.Regex
 
@@ -43,7 +44,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
       ArtefactDescription() ++
       Seq(autoSourceHeader := true, forceSourceHeader := false)
 
-  override def requires: Plugins = AutomateHeaderPlugin
+  override def requires: Plugins = AutomateHeaderPlugin && SbtArtifactory && SbtGitVersioning
 
   override def trigger: PluginTrigger = noTrigger
 

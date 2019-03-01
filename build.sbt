@@ -22,6 +22,8 @@ lazy val project = Project(pluginName, file("."))
     addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.1.1"),
     addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.8.0"),
     addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.8.0"),
+    addSbtPlugin("uk.gov.hmrc" % "sbt-artifactory" % "0.17.0"),
+    addSbtPlugin("uk.gov.hmrc" % "sbt-git-versioning" % "1.15.0"),
     libraryDependencies ++= Seq(
       "org.eclipse.jgit" % "org.eclipse.jgit.pgm" % "3.7.0.201502260915-r",
       "org.scalatest" %% "scalatest" % "2.2.6" % "test",
