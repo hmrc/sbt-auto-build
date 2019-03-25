@@ -6,8 +6,8 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.1.1")
 
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.8.0")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-artifactory" % "0.12.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-artifactory" % "0.17.0")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-git-versioning" % "1.7.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-git-versioning" % "1.16.0")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.8.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.9.0")
