@@ -19,7 +19,7 @@ package uk.gov.hmrc
 import java.nio.file.Path
 
 import org.eclipse.jgit.revwalk.RevCommit
-import org.scalatest.{Suite, BeforeAndAfterEach}
+import org.scalatest.{BeforeAndAfterEach, Suite}
 
 import scala.reflect.io.File
 

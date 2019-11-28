@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc
 
-import org.scalatest._
+import org.scalatest.OptionValues
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-
-class ArtefactDescriptionSpec extends WordSpec with GitRepository with ShouldMatchers with OptionValues {
+class ArtefactDescriptionSpec extends AnyWordSpec with GitRepository with Matchers with OptionValues {
 
   "remote url" must {
     "find the remote connection url for the current branch with a single remote" in {

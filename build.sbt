@@ -1,3 +1,5 @@
+import java.time.LocalDate
+
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings, targetJvm}
 import uk.gov.hmrc.SbtBuildInfo
 
@@ -9,27 +11,29 @@ lazy val project = Project(pluginName, file("."))
     scalaSettings ++
       SbtBuildInfo() ++
       defaultSettings() ++
+      headerSettings ++
       publishSettings ++
       artefactDescription: _*
   )
   .settings(
     sbtPlugin := true,
-    majorVersion := 1,
+    majorVersion := 2,
     makePublicallyAvailableOnBintray := true,
     scalaVersion := "2.10.7",
+    crossSbtVersions := Vector("0.13.18", "1.3.4"),
     targetJvm := "jvm-1.7",
-    headers := headerSettings,
-    addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.1.1"),
-    addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.8.0"),
-    addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.8.0"),
+    addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.5.0"),
+    addSbtPlugin("de.heikoseeberger" % "sbt-header" % "3.0.2"),
+    addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.12.0-SNAPSHOT"),
     libraryDependencies ++= Seq(
-      "org.eclipse.jgit" % "org.eclipse.jgit.pgm" % "3.7.0.201502260915-r",
-      "org.scalatest" %% "scalatest" % "2.2.6" % "test",
-      "org.pegdown" % "pegdown" % "1.5.0" % "test"
+      "org.eclipse.jgit" % "org.eclipse.jgit.pgm" % "3.7.1.201504261725-r",
+      "org.scalatest"         %% "scalatest"    % "3.1.0-M2"  % Test,
+      "com.vladsch.flexmark"  % "flexmark-all"  % "0.35.10"   % Test
     ),
     resolvers := Seq(
       Resolver.url("hmrc-sbt-plugin-releases", url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
-    )
+    ),
+    buildInfoOptions := Seq.empty
   )
 
 val publishSettings = Seq(
@@ -40,10 +44,9 @@ val publishSettings = Seq(
   )
 
 val headerSettings = {
-  import de.heikoseeberger.sbtheader.license.Apache2_0
-  import org.joda.time.DateTime
-
-  Map("scala" -> Apache2_0(DateTime.now().getYear.toString, "HM Revenue & Customs"))
+  Seq(
+    headerLicense := Some(HeaderLicense.ALv2(LocalDate.now().getYear.toString, "HM Revenue & Customs"))
+  )
 }
 
 val artefactDescription =
