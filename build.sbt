@@ -19,14 +19,13 @@ lazy val project = Project(pluginName, file("."))
     sbtPlugin := true,
     majorVersion := 2,
     makePublicallyAvailableOnBintray := true,
-    scalaVersion := "2.10.7",
     crossSbtVersions := Vector("0.13.18", "1.3.4"),
-    targetJvm := "jvm-1.7",
+    targetJvm := "jvm-1.8",
     addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.5.0"),
     addSbtPlugin("de.heikoseeberger" % "sbt-header" % "3.0.2"),
     addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.12.0-SNAPSHOT"),
     libraryDependencies ++= Seq(
-      "org.eclipse.jgit" % "org.eclipse.jgit.pgm" % "3.7.1.201504261725-r",
+      "org.eclipse.jgit"      % "org.eclipse.jgit.pgm" % "3.7.1.201504261725-r",
       "org.scalatest"         %% "scalatest"    % "3.1.0-M2"  % Test,
       "com.vladsch.flexmark"  % "flexmark-all"  % "0.35.10"   % Test
     ),

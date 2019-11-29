@@ -10,4 +10,4 @@ addSbtPlugin("uk.gov.hmrc" % "sbt-artifactory" % "0.17.0")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-git-versioning" % "1.20.0")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.12.0-SNAPSHOT")
+addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "4.0.0-SNAPSHOT")
