@@ -16,17 +16,17 @@
 
 package uk.gov.hmrc
 
-import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
+import java.time.LocalDate
+
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
+import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, FileType}
 import org.eclipse.jgit.lib.{BranchConfig, Repository, StoredConfig}
 import play.twirl.sbt.Import.TwirlKeys
 import sbt.Keys._
-import sbt._
-
-import scala.util.matching.Regex
+import sbt.{Setting, _}
 
 object SbtAutoBuildPlugin extends AutoPlugin {
 
-  import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
   import uk.gov.hmrc.DefaultBuildSettings._
 
   val logger = ConsoleLogger()
@@ -49,22 +49,12 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   override lazy val projectSettings: Seq[Setting[_]] = {
 
-    val license = new File("LICENSE")
-    if (license.exists())
-      logger.info("SbtAutoBuildPlugin - LICENSE file exists, sbt-header will add Apache 2.0 license headers to each source file.")
-    else
-      logger.info("SbtAutoBuildPlugin - No LICENSE found, source file Apache 2.0 header generation not required")
-
     val addedSettings = Seq(
-      targetJvm := "jvm-1.8", //FIXME if this doesn't go here projects need to declare it
-      headers := {
-        if (forceSourceHeader.value)
-          logger.info("SbtAutoBuildPlugin - forceSourceHeader setting was true, source file headers will be generated regardless of LICENSE")
-
-        if ((license.exists() && autoSourceHeader.value) || forceSourceHeader.value) HeaderSettings() else Map.empty
-      },
-      unmanagedSources.in(Compile, createHeaders) ++= sources.in(Compile, TwirlKeys.compileTemplates).value
-    ) ++ defaultAutoSettings
+      // targetJvm declared here means that anyone using the plugin will inherit this by default. It only needs to
+      // be specified by clients if they want to override it
+      targetJvm := "jvm-1.8",
+      unmanagedSources.in(Compile, headerCreate) ++= sources.in(Compile, TwirlKeys.compileTemplates).value
+    ) ++ defaultAutoSettings ++ HeaderSettings(autoSourceHeader, forceSourceHeader)
 
     logger.info(s"SbtAutoBuildPlugin - adding ${addedSettings.size} build settings")
 
@@ -96,21 +86,38 @@ object PublishSettings {
   )
 }
 
+// Enforce a standard licence header across all HMRC
 object HeaderSettings {
 
-  import de.heikoseeberger.sbtheader.license.Apache2_0
-  import org.joda.time.DateTime
+  val license = new File("LICENSE")
 
-  val copyrightYear: String = DateTime.now().getYear.toString
-  val copyrightOwner: String = "HM Revenue & Customs"
+  val commentStyles: Map[FileType, CommentStyle] = Map(
+    FileType.scala -> CommentStyle.CStyleBlockComment,
+    FileType.conf -> CommentStyle.HashLineComment,
+    FileType("html") -> CommentStyle.TwirlStyleBlockComment
+  )
 
-  def apply(): Map[String, (Regex, String)] = {
-    Map(
-      "scala" -> Apache2_0(copyrightYear, copyrightOwner),
-      "conf" -> Apache2_0(copyrightYear, copyrightOwner, "#"),
-      "html" -> Apache2_0(copyrightYear, copyrightOwner, "@*")
-    )
+  private def shouldGenerateHeaders(autoSource: Boolean, force: Boolean): Boolean = {
+    if (force) {
+      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - forceSourceHeader setting was true, source file headers will be generated regardless of LICENSE")
+      true
+    } else if (autoSource && license.exists()) {
+      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - LICENSE file exists, sbt-header will add Apache 2.0 license headers to each source file.")
+      true
+    } else {
+      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - No LICENSE found, source file Apache 2.0 header generation not required")
+      false
+    }
   }
+
+  def apply(autoSourceHeader: SettingKey[Boolean], forceSourceHeader: SettingKey[Boolean]): Seq[Setting[_]] = Seq(
+    headerLicense := {
+      if (shouldGenerateHeaders(autoSourceHeader.value, forceSourceHeader.value))
+        Some(HeaderLicense.ALv2(LocalDate.now().getYear.toString, "HM Revenue & Customs"))
+      else None
+    },
+    headerMappings := headerMappings.value ++ commentStyles
+  )
 }
 
 object ArtefactDescription {

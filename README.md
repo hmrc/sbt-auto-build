@@ -8,6 +8,15 @@ Simpler build settings by using an auto-plugin to automatically add settings fro
 Usage
 -----
 
+### Sbt 1.x
+
+Since major version 2, this plugin is cross compiled for sbt 1.x (specifically 1.3.4).
+
+| Sbt version | Plugin version |
+| ----------- | -------------- |
+| `0.13.x`    | `any`          |
+| `>= 1.x`    | `>= 2.x`       |
+
 In your project/plugins.sbt file:
 ```
 resolvers += Resolver.url("hmrc-sbt-plugin-releases",
