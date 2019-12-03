@@ -138,18 +138,10 @@ object ArtefactDescription {
               <developers>
                 {developers.value.map { dev =>
                 <developer>
-                  <id>
-                    {dev.id}
-                  </id>
-                  <name>
-                    {dev.name}
-                  </name>
-                  <email>
-                    {dev.email}
-                  </email>
-                  <url>
-                    {dev.url}
-                  </url>
+                  <id>{dev.id}</id>
+                  <name>{dev.name}</name>
+                  <email>{dev.email}</email>
+                  <url>{dev.url}</url>
                 </developer>
               }}
               </developers>
