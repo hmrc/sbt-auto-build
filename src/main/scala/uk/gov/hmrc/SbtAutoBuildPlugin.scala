@@ -50,7 +50,9 @@ object SbtAutoBuildPlugin extends AutoPlugin {
   override lazy val projectSettings: Seq[Setting[_]] = {
 
     val addedSettings = Seq(
-      targetJvm := "jvm-1.8", //FIXME if this doesn't go here projects need to declare it
+      // targetJvm declared here means that anyone using the plugin will inherit this by default. It only needs to
+      // be specified by clients if they want to override it
+      targetJvm := "jvm-1.8",
       unmanagedSources.in(Compile, headerCreate) ++= sources.in(Compile, TwirlKeys.compileTemplates).value
     ) ++ defaultAutoSettings ++ HeaderSettings(autoSourceHeader, forceSourceHeader)
 
