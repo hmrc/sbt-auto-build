@@ -32,8 +32,7 @@ lazy val project = Project(pluginName, file("."))
     ),
     resolvers := Seq(
       Resolver.url("hmrc-sbt-plugin-releases", url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
-    ),
-    buildInfoOptions := Seq.empty
+    )
   )
 
 val publishSettings = Seq(
