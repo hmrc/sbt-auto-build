@@ -22,9 +22,6 @@ lazy val project = Project(pluginName, file("."))
     scalaVersion := "2.10.7",
     crossSbtVersions := Vector("0.13.18", "1.3.4"),
     targetJvm := "jvm-1.8",
-    // Kept at 1.4.2, the last release that is cross-compiled for 2.11
-    // See comment on https://jira.tools.tax.service.gov.uk/browse/BDOG-516
-    addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.4.2"),
     addSbtPlugin("de.heikoseeberger" % "sbt-header" % "3.0.2"),
     addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "4.0.0"),
     libraryDependencies ++= Seq(

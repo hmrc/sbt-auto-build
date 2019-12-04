@@ -21,7 +21,6 @@ import java.time.LocalDate
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, FileType}
 import org.eclipse.jgit.lib.{BranchConfig, Repository, StoredConfig}
-import play.twirl.sbt.Import.TwirlKeys
 import sbt.Keys._
 import sbt.{Setting, _}
 
@@ -49,11 +48,17 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   override lazy val projectSettings: Seq[Setting[_]] = {
 
+    // Taken from the sbt-twirl plugin to avoid declaring a full dependency (which this plugin used previously)
+    // That caused potential evictions of the `twirl-api` library and inconsistencies depending on the version used by clients
+    // See comment on https://jira.tools.tax.service.gov.uk/browse/BDOG-516
+    val twirlCompileTemplates =
+      TaskKey[Seq[File]]("twirl-compile-templates", "Compile twirl templates into scala source files")
+
     val addedSettings = Seq(
       // targetJvm declared here means that anyone using the plugin will inherit this by default. It only needs to
       // be specified by clients if they want to override it
       targetJvm := "jvm-1.8",
-      unmanagedSources.in(Compile, headerCreate) ++= sources.in(Compile, TwirlKeys.compileTemplates).value
+      unmanagedSources.in(Compile, headerCreate) ++= sources.in(Compile, twirlCompileTemplates).value
     ) ++ defaultAutoSettings ++ HeaderSettings(autoSourceHeader, forceSourceHeader)
 
     logger.info(s"SbtAutoBuildPlugin - adding ${addedSettings.size} build settings")
