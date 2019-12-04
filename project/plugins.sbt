@@ -4,7 +4,7 @@ resolvers ++= Seq(
 
 resolvers += Resolver.bintrayRepo("hmrc", "releases")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.5.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.4.2")
 
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "3.0.2")
 
