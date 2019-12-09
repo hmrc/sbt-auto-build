@@ -110,7 +110,7 @@ object HeaderSettings {
       SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - LICENSE file exists, sbt-header will add Apache 2.0 license headers to each source file.")
       true
     } else {
-      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - No LICENSE found, source file Apache 2.0 header generation not required")
+      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - No LICENSE file found, please add one to the root of your repo or set forceSourceHeader=true")
       false
     }
   }
