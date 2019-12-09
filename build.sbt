@@ -19,7 +19,7 @@ lazy val project = Project(pluginName, file("."))
     sbtPlugin := true,
     majorVersion := 2,
     makePublicallyAvailableOnBintray := true,
-    scalaVersion := "2.10.7",
+    scalaVersion := "2.12.10",
     crossSbtVersions := Vector("0.13.18", "1.3.4"),
     targetJvm := "jvm-1.8",
     addSbtPlugin("de.heikoseeberger" % "sbt-header" % "3.0.2"),
