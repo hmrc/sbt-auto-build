@@ -96,9 +96,9 @@ object HeaderSettings {
   val license = new File("LICENSE")
 
   val commentStyles: Map[FileType, CommentStyle] = Map(
-    FileType.scala -> CommentStyle.CStyleBlockComment,
-    FileType.conf -> CommentStyle.HashLineComment,
-    FileType("html") -> CommentStyle.TwirlStyleBlockComment
+    FileType.scala -> CommentStyle.cStyleBlockComment,
+    FileType.conf -> CommentStyle.hashLineComment,
+    FileType("html") -> CommentStyle.twirlStyleBlockComment
   )
 
   private def shouldGenerateHeaders(autoSource: Boolean, force: Boolean): Boolean = {

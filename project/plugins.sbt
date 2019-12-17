@@ -4,7 +4,7 @@ resolvers ++= Seq(
 
 resolvers += Resolver.bintrayRepo("hmrc", "releases")
 
-addSbtPlugin("de.heikoseeberger" % "sbt-header" % "3.0.2")
+addSbtPlugin("de.heikoseeberger" % "sbt-header" % "4.1.0")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-artifactory" % "1.0.0")
 

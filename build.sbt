@@ -22,16 +22,17 @@ lazy val project = Project(pluginName, file("."))
     scalaVersion := "2.12.10",
     crossSbtVersions := Vector("0.13.18", "1.3.4"),
     targetJvm := "jvm-1.8",
-    addSbtPlugin("de.heikoseeberger" % "sbt-header" % "3.0.2"),
+    addSbtPlugin("de.heikoseeberger" % "sbt-header" % "4.1.0"),
     addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "4.1.0"),
     libraryDependencies ++= Seq(
-      "org.eclipse.jgit"      % "org.eclipse.jgit.pgm"  % "3.7.1.201504261725-r",
+      "org.eclipse.jgit"      % "org.eclipse.jgit.pgm"  % "4.11.9.201909030838-r" exclude("javax.jms", "jms") exclude("com.sun.jdmk", "jmxtools") exclude("com.sun.jmx", "jmxri"),
       "org.scalatest"         %% "scalatest"            % "3.1.0"     % Test,
       "com.vladsch.flexmark"  % "flexmark-all"          % "0.35.10"   % Test
     ),
     resolvers := Seq(
       Resolver.url("hmrc-sbt-plugin-releases", url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
-    )
+    ),
+    useCoursier := false //Required to fix resolution for IntelliJ
   )
 
 val publishSettings = Seq(
