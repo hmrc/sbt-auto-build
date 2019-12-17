@@ -31,12 +31,12 @@ trait GitRepository extends BeforeAndAfterEach { this: Suite =>
   var gitHelper: GitHelper = _
 
   // GitInfo, whilst could be declared in each test, is in the fixture, as it should be cleaned up after each test by calling close()
-  var git: Git = _
+  var git: GitUtils = _
 
   override def beforeEach() = {
     tempWorkDir = java.nio.file.Files.createTempDirectory("git_test")
     gitHelper = new GitHelper(tempWorkDir)
-    git = new Git {
+    git = new GitUtils {
       override val repository = {
         gitHelper.repo
       }

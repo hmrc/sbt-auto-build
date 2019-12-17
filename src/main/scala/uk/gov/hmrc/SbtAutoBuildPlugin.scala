@@ -20,7 +20,6 @@ import java.time.LocalDate
 
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, FileType}
-import org.eclipse.jgit.lib.{BranchConfig, Repository, StoredConfig}
 import sbt.Keys._
 import sbt.{Setting, _}
 
@@ -123,95 +122,4 @@ object HeaderSettings {
     },
     headerMappings := headerMappings.value ++ commentStyles
   )
-}
-
-object ArtefactDescription {
-
-  def apply() = Seq(
-    homepage := Git.homepage,
-    organizationHomepage := Some(url("https://www.gov.uk/government/organisations/hm-revenue-customs")),
-    scmInfo := buildScmInfo,
-
-    // workaround for sbt/sbt#1834
-    pomPostProcess := {
-
-      import scala.xml.transform.{RewriteRule, RuleTransformer}
-      import scala.xml.{Node => XmlNode, NodeSeq => XmlNodeSeq, _}
-
-      node: XmlNode =>
-        new RuleTransformer(new RewriteRule {
-          override def transform(node: XmlNode): XmlNodeSeq = node match {
-            case e: Elem if e.label == "developers" =>
-              <developers>
-                {developers.value.map { dev =>
-                <developer>
-                  <id>{dev.id}</id>
-                  <name>{dev.name}</name>
-                  <email>{dev.email}</email>
-                  <url>{dev.url}</url>
-                </developer>
-              }}
-              </developers>
-            case _ => node
-          }
-        }).transform(node).head
-    }
-  )
-
-  def buildScmInfo: Option[ScmInfo] = {
-    for (connUrl <- Git.findRemoteConnectionUrl;
-         browserUrl <- Git.browserUrl)
-      yield ScmInfo(url(browserUrl), connUrl)
-  }
-}
-
-object Git extends Git {
-  override lazy val repository: Repository = {
-    import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-    val builder = new FileRepositoryBuilder
-    builder.findGitDir.build
-  }
-}
-
-trait Git {
-  val logger = ConsoleLogger()
-  val repository: Repository
-  lazy val config: StoredConfig = repository.getConfig
-
-  def homepage: Option[URL] = browserUrl map url
-
-  def browserUrl: Option[String] = {
-    findRemoteConnectionUrl map browserUrl
-  }
-
-  def findRemoteConnectionUrl: Option[String] = {
-    val currentBranchUrl = getUrlForBranch(repository.getBranch)
-
-    val url = currentBranchUrl.orElse(getUrlForBranch("master")).orElse(getUrlForRemote("origin"))
-
-    url.map { originUrl =>
-      val gitTcpRex = "^(git:\\/\\/)".r
-      gitTcpRex.replaceFirstIn(originUrl, "git@")
-    }
-  }
-
-  private def getUrlForBranch(name: String) = {
-    val branchConfig = new BranchConfig(config, name)
-    getUrlForRemote(branchConfig.getRemote)
-  }
-
-  private def getUrlForRemote(name: String) = {
-    Option(config.getString("remote", name, "url"))
-  }
-
-  private def browserUrl(remoteConnectionUrl: String): String = {
-    val removedProtocol = removeProtocol(remoteConnectionUrl)
-    val replacedSeparator = removedProtocol.toLowerCase.replaceFirst(":", "/")
-    val removedGitSuffix = replacedSeparator.replaceFirst(".git$", "")
-    s"https://$removedGitSuffix"
-  }
-
-  private def removeProtocol(connectionUrl: String): String = {
-    "^(git@|git://|https://)".r.replaceFirstIn(connectionUrl, "")
-  }
 }
