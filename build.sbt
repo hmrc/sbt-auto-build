@@ -25,6 +25,7 @@ lazy val project = Project(pluginName, file("."))
     addSbtPlugin("de.heikoseeberger" % "sbt-header" % "4.1.0"),
     addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "4.1.0"),
     libraryDependencies ++= Seq(
+      "org.yaml"              % "snakeyaml"             % "1.25",
       "org.eclipse.jgit"      % "org.eclipse.jgit.pgm"  % "4.11.9.201909030838-r" exclude("javax.jms", "jms") exclude("com.sun.jdmk", "jmxtools") exclude("com.sun.jmx", "jmxri"),
       "org.scalatest"         %% "scalatest"            % "3.1.0"     % Test,
       "com.vladsch.flexmark"  % "flexmark-all"          % "0.35.10"   % Test

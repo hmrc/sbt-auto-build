@@ -22,6 +22,7 @@ import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, FileType}
 import sbt.Keys._
 import sbt.{Setting, _}
+import uk.gov.hmrc.HeaderUtils.{Private, Public}
 
 object SbtAutoBuildPlugin extends AutoPlugin {
 
@@ -31,6 +32,8 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   val autoSourceHeader = SettingKey[Boolean]("autoSourceHeader", "generate open-source headers if LICENSE file exists")
   val forceSourceHeader = SettingKey[Boolean]("forceSourceHeader", "forces generation of open-source headers regardless of LICENSE")
+
+  val currentYear = LocalDate.now().getYear.toString
 
   private val defaultAutoSettings: Seq[Setting[_]] =
     scalaSettings ++
@@ -94,6 +97,7 @@ object PublishSettings {
 object HeaderSettings {
 
   val license = new File("LICENSE")
+  val repositoryYamlFile = new File("repository.yaml")
 
   val commentStyles: Map[FileType, CommentStyle] = Map(
     FileType.scala -> CommentStyle.cStyleBlockComment,
@@ -101,25 +105,60 @@ object HeaderSettings {
     FileType("html") -> CommentStyle.twirlStyleBlockComment
   )
 
-  private def shouldGenerateHeaders(autoSource: Boolean, force: Boolean): Boolean = {
+  def shouldGenerateHeaders(autoSource: Boolean, force: Boolean): Boolean = {
+
+    lazy val stringOrVisibility = for {
+      yamlString <- HeaderUtils.loadRepositoryYamlFile(new File(""))
+      yaml <- HeaderUtils.loadYaml(yamlString)
+      repoVisibility <- HeaderUtils.getRepoVisiblity(yaml)
+    } yield repoVisibility
+
     if (force) {
-      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - forceSourceHeader setting was true, source file headers will be generated regardless of LICENSE")
+      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - forceSourceHeader setting was set to true, Apache 2.0 licence file headers will be generated regardless")
       true
-    } else if (autoSource && license.exists()) {
-      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - LICENSE file exists, sbt-header will add Apache 2.0 license headers to each source file.")
-      true
-    } else {
-      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - No LICENSE file found, please add one to the root of your repo or set forceSourceHeader=true")
-      false
+    } else stringOrVisibility match {
+      case Right(Public) =>
+        SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - repository is marked public. Licence headers will be added to all source files")
+        true
+      case Right(Private) =>
+        SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - repository is marked private. No licence headers will be added to source files, only a copyright notice")
+        false
+      case Left(error) =>
+        sys.error(s"SbtAutoBuildPlugin - Error, please fix: $error")
     }
+
+
+    //    if (autoSource && license.exists()) {
+    //      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - LICENSE file exists, sbt-header will add Apache 2.0 license headers to each source file.")
+    //      true
+    //    } else {
+    //      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - No LICENSE file found, please add one to the root of your repo or set forceSourceHeader=true")
+    //      false
   }
 
-  def apply(autoSourceHeader: SettingKey[Boolean], forceSourceHeader: SettingKey[Boolean]): Seq[Setting[_]] = Seq(
-    headerLicense := {
-      if (shouldGenerateHeaders(autoSourceHeader.value, forceSourceHeader.value))
-        Some(HeaderLicense.ALv2(LocalDate.now().getYear.toString, "HM Revenue & Customs"))
-      else None
-    },
-    headerMappings := headerMappings.value ++ commentStyles
-  )
+  def apply(autoSourceHeader: SettingKey[Boolean], forceSourceHeader: SettingKey[Boolean]): Seq[Setting[_]] = {
+    Seq(
+      headerLicense := {
+        if (shouldGenerateHeaders(autoSourceHeader.value, forceSourceHeader.value))
+          Some(HeaderLicense.ALv2(SbtAutoBuildPlugin.currentYear, "HM Revenue & Customs"))
+        else Some(HeaderLicense.Custom(
+          s"""|Copyright ${SbtAutoBuildPlugin.currentYear} HM Revenue & Customs
+             |
+             |""".stripMargin
+        ))
+      },
+      headerMappings := headerMappings.value ++ commentStyles
+//      Compile / headerCreate := Def.taskDyn {
+//        val original = (Compile / headerCreate).taskValue
+//        if(shouldGenerateHeaders(autoSourceHeader.value, forceSourceHeader.value)) {
+//          SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - Will set licence headers")
+//          Def.task(original.value)
+//        }
+//        else {
+//          SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - no need to set licence headers")
+//          Def.task(scala.collection.immutable.Iterable.empty[File])
+//        }
+//      }.value
+    )
+  }
 }
