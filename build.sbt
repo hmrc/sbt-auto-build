@@ -23,7 +23,7 @@ lazy val project = Project(pluginName, file("."))
     crossSbtVersions := Vector("0.13.18", "1.3.4"),
     targetJvm := "jvm-1.8",
     addSbtPlugin("de.heikoseeberger" % "sbt-header" % "3.0.2"),
-    addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "4.0.0"),
+    addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "4.1.0"),
     libraryDependencies ++= Seq(
       "org.eclipse.jgit"      % "org.eclipse.jgit.pgm"  % "3.7.1.201504261725-r",
       "org.scalatest"         %% "scalatest"            % "3.1.0"     % Test,
