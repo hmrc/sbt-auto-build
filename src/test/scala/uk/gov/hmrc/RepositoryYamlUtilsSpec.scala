@@ -20,39 +20,41 @@ import java.io.File
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.HeaderUtils.{Private, Public}
+import uk.gov.hmrc.RepositoryYamlUtils.{Private, Public}
 
-class HeaderUtilsSpec extends AnyWordSpec with Matchers {
+class RepositoryYamlUtilsSpec extends AnyWordSpec with Matchers {
 
    "loadRepositoryYamlFile" should {
      "return an error if the file does not exist" in {
        val missingFile = new File("missing")
-       HeaderUtils.loadRepositoryYamlFile(missingFile) shouldBe Left(s"Unable to find repository.yaml file at ${missingFile.getAbsolutePath}/repository.yaml")
+       RepositoryYamlUtils.loadRepositoryYamlFile(missingFile) shouldBe Left(s"Unable to find repository.yaml file at ${missingFile.getAbsolutePath}/repository.yaml")
      }
    }
 
   "loadYaml" should {
     "return an error if the file does not contain valid yaml" in {
-      HeaderUtils.loadYaml("garbage") shouldBe Left(s"File was not valid YAML")
+      RepositoryYamlUtils.loadYaml("garbage") shouldBe Left(s"File was not valid YAML")
     }
     "return a map of keys to values if valid yaml" in {
-      HeaderUtils.loadYaml(s"repoVisibility: ${Public.key}\nanotherKey: something") shouldBe
-        Right(Map("repoVisibility" -> Public.key, "anotherKey" -> "something"))
+      RepositoryYamlUtils.loadYaml(s"repoVisibility: ${Public.visibilityIdentifier}\nanotherKey: something") shouldBe
+        Right(Map("repoVisibility" -> Public.visibilityIdentifier, "anotherKey" -> "something"))
     }
   }
 
   "getRepoVisbility" should {
     "return public if the public visibility key is present" in {
-      HeaderUtils.getRepoVisiblity(Map("repoVisibility" -> Public.key)) shouldBe Right(Public)
+      RepositoryYamlUtils.getRepoVisiblity(Map("repoVisibility" -> Public.visibilityIdentifier)) shouldBe Right(Public)
     }
     "return private if the private visibility key is present" in {
-      HeaderUtils.getRepoVisiblity(Map("repoVisibility" -> Private.key)) shouldBe Right(Private)
+      RepositoryYamlUtils.getRepoVisiblity(Map("repoVisibility" -> Private.visibilityIdentifier)) shouldBe Right(Private)
     }
     "return an error if the repoVisibility identifier is not known" in {
-      HeaderUtils.getRepoVisiblity(Map("repoVisibility" -> Private.key.dropRight(1))) shouldBe Left("repoVisibility key is invalid")
+      RepositoryYamlUtils.getRepoVisiblity(Map("repoVisibility" -> Private.visibilityIdentifier.dropRight(1))) shouldBe
+        Left("The 'repoVisibility' identifier in repository.yaml is invalid. See https://confluence.tools.tax.service.gov.uk/x/k_8TCQ")
     }
     "return an error if the repoVisibility key is not present" in {
-      HeaderUtils.getRepoVisiblity(Map.empty) shouldBe Left("yaml is missing key repoVisibility")
+      RepositoryYamlUtils.getRepoVisiblity(Map.empty) shouldBe
+        Left("The repository.yaml file in the root of the build is missing the 'repoVisibility' key")
     }
   }
 

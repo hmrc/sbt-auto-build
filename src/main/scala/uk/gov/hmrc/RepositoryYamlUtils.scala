@@ -24,20 +24,22 @@ import scala.collection.JavaConverters._
 import scala.io.Source
 import scala.util.Try
 
-object HeaderUtils {
+object RepositoryYamlUtils {
+  import Extensions.RichTry
 
   val repositoryYamlFile = "repository.yaml"
+  val repoVisibilityKey = "repoVisibility"
 
   type YAML = Map[String, String]
 
   sealed trait RepoVisibility {
-    val key: String
+    val visibilityIdentifier: String
   }
   case object Private extends RepoVisibility {
-    override val key: String = "private_12E5349CFB8BBA30AF464C24760B70343C0EAE9E9BD99156345DD0852C2E0F6F"
+    override val visibilityIdentifier: String = "private_12E5349CFB8BBA30AF464C24760B70343C0EAE9E9BD99156345DD0852C2E0F6F"
   }
   case object Public extends RepoVisibility {
-    override val key: String = "public_0C3F0CE3E6E6448FAD341E7BFA50FCD333E06A20CFF05FCACE61154DDBBADF71"
+    override val visibilityIdentifier: String = "public_0C3F0CE3E6E6448FAD341E7BFA50FCD333E06A20CFF05FCACE61154DDBBADF71"
   }
 
   def loadRepositoryYamlFile(dir: File): Either[String, String] = {
@@ -48,7 +50,7 @@ object HeaderUtils {
       val content = f.mkString
       f.close()
       content
-    }.toEither.left.map(e => s"Unable to find ${repositoryYamlFile} file at ${yamlFile.getAbsolutePath}: $e")
+    }.toEither.left.map(_ => s"Unable to find ${repositoryYamlFile} file at ${yamlFile.getAbsolutePath}")
   }
 
   def loadYaml(yamlString: String): Either[String, YAML] = {
@@ -61,13 +63,13 @@ object HeaderUtils {
   }
 
   def getRepoVisiblity(yaml: YAML): Either[String, RepoVisibility] = {
-    yaml.get("repoVisibility") match {
+    yaml.get(repoVisibilityKey) match {
       case Some(v) => v match {
-        case Private.key => Right(Private)
-        case Public.key => Right(Public)
-        case _ => Left("The 'repoVisibility' identifier is invalid. See https://confluence.tools.tax.service.gov.uk/x/k_8TCQ")
+        case Private.visibilityIdentifier => Right(Private)
+        case Public.visibilityIdentifier => Right(Public)
+        case _ => Left(s"The '${repoVisibilityKey}' identifier in ${repositoryYamlFile} is invalid. See https://confluence.tools.tax.service.gov.uk/x/k_8TCQ")
       }
-      case _ => Left(s"The 'repository.yaml' file in the root of the build is missing the 'repoVisibility' key")
+      case _ => Left(s"The ${repositoryYamlFile} file in the root of the build is missing the '${repoVisibilityKey}' key")
     }
   }
 

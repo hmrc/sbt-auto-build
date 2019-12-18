@@ -22,7 +22,10 @@ import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, FileType}
 import sbt.Keys._
 import sbt.{Setting, _}
-import uk.gov.hmrc.HeaderUtils.{Private, Public}
+import uk.gov.hmrc.RepositoryYamlUtils.{Private, Public, RepoVisibility}
+
+import scala.io.Source
+import scala.util.Try
 
 object SbtAutoBuildPlugin extends AutoPlugin {
 
@@ -30,8 +33,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   val logger = ConsoleLogger()
 
-  val autoSourceHeader = SettingKey[Boolean]("autoSourceHeader", "generate open-source headers if LICENSE file exists")
-  val forceSourceHeader = SettingKey[Boolean]("forceSourceHeader", "forces generation of open-source headers regardless of LICENSE")
+  val forceLicenceHeader = SettingKey[Boolean]("forceLicenceHeader", "forces generation of Apache V2 Licence headers")
 
   val currentYear = LocalDate.now().getYear.toString
 
@@ -42,7 +44,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
       PublishSettings() ++
       Resolvers() ++
       ArtefactDescription() ++
-      Seq(autoSourceHeader := true, forceSourceHeader := false)
+      Seq(forceLicenceHeader := false)
 
   override def requires: Plugins = AutomateHeaderPlugin
 
@@ -54,14 +56,14 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     // That caused potential evictions of the `twirl-api` library and inconsistencies depending on the version used by clients
     // See comment on https://jira.tools.tax.service.gov.uk/browse/BDOG-516
     val twirlCompileTemplates =
-      TaskKey[Seq[File]]("twirl-compile-templates", "Compile twirl templates into scala source files")
+    TaskKey[Seq[File]]("twirl-compile-templates", "Compile twirl templates into scala source files")
 
     val addedSettings = Seq(
       // targetJvm declared here means that anyone using the plugin will inherit this by default. It only needs to
       // be specified by clients if they want to override it
       targetJvm := "jvm-1.8",
       unmanagedSources.in(Compile, headerCreate) ++= sources.in(Compile, twirlCompileTemplates).value
-    ) ++ defaultAutoSettings ++ HeaderSettings(autoSourceHeader, forceSourceHeader)
+    ) ++ defaultAutoSettings ++ HeaderSettings(forceLicenceHeader)
 
     logger.info(s"SbtAutoBuildPlugin - adding ${addedSettings.size} build settings")
 
@@ -95,9 +97,14 @@ object PublishSettings {
 
 // Enforce a standard licence header across all HMRC
 object HeaderSettings {
+  import Extensions.RichTry
 
   val license = new File("LICENSE")
   val repositoryYamlFile = new File("repository.yaml")
+
+  val expectedLicenceText =
+    """Apache License
+      |                           Version 2.0, January 2004""".stripMargin
 
   val commentStyles: Map[FileType, CommentStyle] = Map(
     FileType.scala -> CommentStyle.cStyleBlockComment,
@@ -105,18 +112,39 @@ object HeaderSettings {
     FileType("html") -> CommentStyle.twirlStyleBlockComment
   )
 
-  def shouldGenerateHeaders(autoSource: Boolean, force: Boolean): Boolean = {
+  def shouldGenerateHeaders(force: Boolean): Boolean = {
 
-    lazy val stringOrVisibility = for {
-      yamlString <- HeaderUtils.loadRepositoryYamlFile(new File(""))
-      yaml <- HeaderUtils.loadYaml(yamlString)
-      repoVisibility <- HeaderUtils.getRepoVisiblity(yaml)
+    // .right projection required to remain backwards compatible with scala 2.10 cross build (for sbt 0.13)
+    lazy val errorOrVisibility = for {
+      yamlString <- RepositoryYamlUtils.loadRepositoryYamlFile(new File("")).right
+      yaml <- RepositoryYamlUtils.loadYaml(yamlString).right
+      repoVisibility <- RepositoryYamlUtils.getRepoVisiblity(yaml).right
+      _ <- checkLicenceFile(repoVisibility).right
     } yield repoVisibility
 
+    def checkLicenceFile(repoVisibility: RepoVisibility): Either[String, Unit] = repoVisibility match {
+      case Private => Right(())
+      case Public =>
+        if (license.exists()) {
+          Try {
+            val f = Source.fromFile(license)
+            val content = f.mkString
+            f.close()
+            content
+          }.toEither.left.map(_ => s"Problem reading licence file")
+              // .right projection required to remain backwards compatible with scala 2.10 cross build (for sbt 0.13)
+              .right.flatMap(c =>
+                  if (c.contains(expectedLicenceText)) Right(())
+                  else Left(s"The LICENSE file does not contain the appropriate Apache V2 licence")
+          )
+        }
+        else Left(s"No LICENSE file exists but the repository is marked as public")
+    }
+
     if (force) {
-      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - forceSourceHeader setting was set to true, Apache 2.0 licence file headers will be generated regardless")
+      SbtAutoBuildPlugin.logger.info(s"SbtAutoBuildPlugin - ${SbtAutoBuildPlugin.forceLicenceHeader.key.label} setting was set to true, Apache 2.0 licence file headers will be generated regardless")
       true
-    } else stringOrVisibility match {
+    } else errorOrVisibility match {
       case Right(Public) =>
         SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - repository is marked public. Licence headers will be added to all source files")
         true
@@ -126,39 +154,20 @@ object HeaderSettings {
       case Left(error) =>
         sys.error(s"SbtAutoBuildPlugin - Error, please fix: $error")
     }
-
-
-    //    if (autoSource && license.exists()) {
-    //      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - LICENSE file exists, sbt-header will add Apache 2.0 license headers to each source file.")
-    //      true
-    //    } else {
-    //      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - No LICENSE file found, please add one to the root of your repo or set forceSourceHeader=true")
-    //      false
   }
 
-  def apply(autoSourceHeader: SettingKey[Boolean], forceSourceHeader: SettingKey[Boolean]): Seq[Setting[_]] = {
+  def apply(forceSourceHeader: SettingKey[Boolean]): Seq[Setting[_]] = {
     Seq(
       headerLicense := {
-        if (shouldGenerateHeaders(autoSourceHeader.value, forceSourceHeader.value))
+        if (shouldGenerateHeaders(forceSourceHeader.value))
           Some(HeaderLicense.ALv2(SbtAutoBuildPlugin.currentYear, "HM Revenue & Customs"))
         else Some(HeaderLicense.Custom(
           s"""|Copyright ${SbtAutoBuildPlugin.currentYear} HM Revenue & Customs
-             |
-             |""".stripMargin
+              |
+              |""".stripMargin
         ))
       },
       headerMappings := headerMappings.value ++ commentStyles
-//      Compile / headerCreate := Def.taskDyn {
-//        val original = (Compile / headerCreate).taskValue
-//        if(shouldGenerateHeaders(autoSourceHeader.value, forceSourceHeader.value)) {
-//          SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - Will set licence headers")
-//          Def.task(original.value)
-//        }
-//        else {
-//          SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - no need to set licence headers")
-//          Def.task(scala.collection.immutable.Iterable.empty[File])
-//        }
-//      }.value
     )
   }
 }
