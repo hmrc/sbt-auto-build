@@ -6,6 +6,7 @@ import uk.gov.hmrc.SbtBuildInfo
 val pluginName = "sbt-auto-build"
 
 lazy val project = Project(pluginName, file("."))
+  .enablePlugins(SbtPlugin)
   .enablePlugins(AutomateHeaderPlugin, SbtGitVersioning, SbtArtifactory)
   .settings(
     scalaSettings ++
@@ -33,7 +34,11 @@ lazy val project = Project(pluginName, file("."))
     resolvers := Seq(
       Resolver.url("hmrc-sbt-plugin-releases", url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
     ),
-    useCoursier := false //Required to fix resolution for IntelliJ
+    useCoursier := false, //Required to fix resolution for IntelliJ
+    scriptedLaunchOpts := { scriptedLaunchOpts.value ++
+      Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+    },
+    scriptedBufferLog := false
   )
 
 val publishSettings = Seq(
