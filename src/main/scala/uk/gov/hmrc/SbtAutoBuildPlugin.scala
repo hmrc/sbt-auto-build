@@ -123,7 +123,9 @@ object HeaderSettings {
     } yield repoVisibility
 
     def checkLicenceFile(repoVisibility: RepoVisibility): Either[String, Unit] = repoVisibility match {
-      case Private => Right(())
+      case Private =>
+        if(license.exists()) Left(s"LICENSE file exists but the repository is marked as private. Please remove it")
+        else Right(())
       case Public =>
         if (license.exists()) {
           Try {
@@ -131,7 +133,7 @@ object HeaderSettings {
             val content = f.mkString
             f.close()
             content
-          }.toEither.left.map(_ => s"Problem reading licence file")
+          }.toEither.left.map(_ => s"Problem reading LICENSE file")
               // .right projection required to remain backwards compatible with scala 2.10 cross build (for sbt 0.13)
               .right.flatMap(c =>
                   if (c.contains(expectedLicenceText)) Right(())
