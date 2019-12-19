@@ -38,7 +38,9 @@ lazy val project = Project(pluginName, file("."))
     scriptedLaunchOpts := { scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
-    scriptedBufferLog := false
+    scriptedBufferLog := false,
+    // Make it so running 'test' also runs 'scripted' tests
+    test in Test := ((test in Test) dependsOn (scripted in Test).toTask("")).value
   )
 
 val publishSettings = Seq(
