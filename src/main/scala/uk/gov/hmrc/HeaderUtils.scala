@@ -20,20 +20,44 @@ import java.io.File
 
 import uk.gov.hmrc.RepositoryYamlUtils.{Private, Public, RepoVisibility}
 
-import scala.io.Source
-import scala.util.Try
-
 object HeaderUtils {
 
   // IntelliJ tries to remove this on import cleanup, but is required when cross building for sbt 0.13
   import Extensions.RichTry
 
-  val license = new File("LICENSE")
+  val licenceFile = new File("LICENSE")
   val repositoryYamlFile = new File("repository.yaml")
+  // Standard Apache v2 LICENSE (same as the one in this repo), after being trimmed of leading and trailing whitespace.
+  // The reason for that is the official Apache licence has a beginning blank line, whereas the copy in most hmrc repo's
+  // does not have that.
+  val licenceFileExpectedMD5 = "cc1a9e33dd7a6eb0b79927742cf005c"
+  val licenceFileExpectedMD5_2 = "6c4db32a2fa8717faffa1d4f10136f47" //Older variant with {} replaced by []
 
-  val expectedLicenceText =
-    """Apache License
-      |                           Version 2.0, January 2004""".stripMargin
+  def md5HashString(s: String): String = {
+    import java.math.BigInteger
+    import java.security.MessageDigest
+    val md = MessageDigest.getInstance("MD5")
+    val digest = md.digest(s.getBytes)
+    val bigInt = new BigInteger(1,digest)
+    val hashedString = bigInt.toString(16)
+    hashedString
+  }
+
+  def checkLicenceFile(repoVisibility: RepoVisibility): Either[String, Unit] = repoVisibility match {
+    case Private =>
+      if(licenceFile.exists()) Left(s"LICENSE file exists but the repository is marked as private. Please remove it")
+      else Right(())
+    case Public =>
+      if (licenceFile.exists()) {
+        FileUtils.readFileAsString(licenceFile).toEither.left.map(_ => s"Problem reading LICENSE file")
+          // .right projection required to remain backwards compatible with scala 2.10 cross build (for sbt 0.13)
+          .right.flatMap(c =>
+          if (Seq(licenceFileExpectedMD5, licenceFileExpectedMD5_2).contains(md5HashString(c.trim))) Right(())
+          else Left(s"The LICENSE file does not contain the appropriate Apache V2 licence. It should match https://www.apache.org/licenses/LICENSE-2.0.txt")
+        )
+      }
+      else Left(s"No LICENSE file exists but the repository is marked as public")
+  }
 
   def shouldGenerateHeaders(force: Boolean): Boolean = {
 
@@ -44,27 +68,6 @@ object HeaderUtils {
       repoVisibility <- RepositoryYamlUtils.getRepoVisiblity(yaml).right
       _ <- checkLicenceFile(repoVisibility).right
     } yield repoVisibility
-
-    def checkLicenceFile(repoVisibility: RepoVisibility): Either[String, Unit] = repoVisibility match {
-      case Private =>
-        if(license.exists()) Left(s"LICENSE file exists but the repository is marked as private. Please remove it")
-        else Right(())
-      case Public =>
-        if (license.exists()) {
-          Try {
-            val f = Source.fromFile(license)
-            val content = f.mkString
-            f.close()
-            content
-          }.toEither.left.map(_ => s"Problem reading LICENSE file")
-            // .right projection required to remain backwards compatible with scala 2.10 cross build (for sbt 0.13)
-            .right.flatMap(c =>
-            if (c.contains(expectedLicenceText)) Right(())
-            else Left(s"The LICENSE file does not contain the appropriate Apache V2 licence")
-          )
-        }
-        else Left(s"No LICENSE file exists but the repository is marked as public")
-    }
 
     if (force) {
       SbtAutoBuildPlugin.logger.info(s"SbtAutoBuildPlugin - ${SbtAutoBuildPlugin.forceLicenceHeader.key.label} setting was set to true, Apache 2.0 licence file headers will be generated regardless")

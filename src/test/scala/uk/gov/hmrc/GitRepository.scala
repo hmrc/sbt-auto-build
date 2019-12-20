@@ -103,3 +103,4 @@ class GitHelper(tempWorkDir: Path) {
 
   def close() = jgit.close()
 }
+
