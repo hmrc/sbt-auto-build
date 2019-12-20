@@ -7,7 +7,7 @@ This auto-plugin provides and applies common settings used across the HMRC platf
 Usage
 -----
 
-### Sbt 1.x
+## Sbt 1.x
 
 Since major version 2, this plugin is cross compiled for sbt 1.x (specifically 1.3.4).
 
@@ -32,31 +32,38 @@ We have added the resolver here, if you already have the 'https://dl.bintray.com
 
 Add the line ```.enablePlugins(SbtAutoBuildPlugin)``` to your project to enable the plugin.
 
-## Upgrading to version 2
+## Upgrading to the latest release
 
-### Configuring the LICENSE file
+### Required header/licence setup
 
-TL;DR: If you upgrade and get an error with your build of `(compile:headerCreate) Unable to auto detect project license`,
-then you need to add the appropriate licence file.
+In order to apply the correct licence or copyright headers to the start of all of your source files, 
+`sbt-auto-build` now enforces that:
 
-This plugin will add the copyright headers to the start of each of your files automatically, and to do that it needs to 
-know the correct licence to apply.
+ 1. Your repository contains a `repository.yaml` file at the root of the project, with a valid `repoVisibility` identifier.
+ See [here](https://confluence.tools.tax.service.gov.uk/x/k_8TCQ) for more info
+ 1. If your repository is marked as being *public*: A `LICENSE` file _must_ exist, and must be the Apache V2.0 licence, like [this one](https://github.com/hmrc/service-dependencies/blob/master/LICENSE)
+ 1. If your repository is marked as being *private*: A `LICENSE` file _must not_ exist
 
-There are 3 ways that can be done, in order of preference (we recommend using option 1):
+> Note the spelling of the LICENSE file with an `S` not a `C`
 
-1. Add a `LICENSE` file in it's root, like [this one](https://github.com/hmrc/service-dependencies/blob/master/LICENSE)
-> Note the spelling of LICENSE with an `S` not a `C`, for legacy reasons 
-1. Set `forceSourceHeader=true` in the build. This will add the Apache v2 licence.
-1. Configure the licence directly as per the [sbt-header readme](https://github.com/sbt/sbt-header)
+### Overriding the licence settings
 
-#### Why is this required now?
+In the unlikely event that there is a need to tweak the licence headers added, then it is possible to override the settings
+used by the underlying [sbt-header](https://github.com/sbt/sbt-header) plugin.
+
+> There is also a settingKey `forceSourceHeader=true` which forces the generation of the Apache V2 licence regardless. 
+> This should _not_ be used without good reason
+
+### Why is this required now?
 As part of upgrading all our plugins to be cross-built for sbt 1.x, we've also taken the opportunity to update some of the
-underlying libraries that get pulled in. One of these is the [sbt-header](https://github.com/sbt/sbt-header) plugin. 
+underlying libraries and revisit how the settings are applied.
 
-The newer version of the plugin has some internal changes, which makes our default behaviour different in the event there
-is no licence. In versions < 2.x we defaulted to not requiring a licence, and not trying to apply one. Every repository
-should have correct licence headers though, so the new behaviour is purposeful. The majority of repos already have the
+In versions < 2.x we defaulted to not requiring a licence, and not trying to apply one. Every repository
+should have correct licence headers though, so the new behaviour is purposeful. The majority of public repos already have the
 LICENSE file and should not have any issue.
+
+If your repository is private, then when upgrading to the latest `sbt-auto-build` all your source files will be updated
+to remove the licence info and replace it with a standard copyright notice.
 
 What it does
 ------------

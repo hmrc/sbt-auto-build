@@ -50,7 +50,7 @@ object RepositoryYamlUtils {
       val content = f.mkString
       f.close()
       content
-    }.toEither.left.map(_ => s"Unable to find ${repositoryYamlFile} file at ${yamlFile.getAbsolutePath}")
+    }.toEither.left.map(_ => s"Unable to find ${repositoryYamlFile} file at ${yamlFile.getAbsolutePath}. See https://confluence.tools.tax.service.gov.uk/x/k_8TCQ")
   }
 
   def loadYaml(yamlString: String): Either[String, YAML] = {

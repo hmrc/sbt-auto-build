@@ -27,7 +27,7 @@ class RepositoryYamlUtilsSpec extends AnyWordSpec with Matchers {
    "loadRepositoryYamlFile" should {
      "return an error if the file does not exist" in {
        val missingFile = new File("missing")
-       RepositoryYamlUtils.loadRepositoryYamlFile(missingFile) shouldBe Left(s"Unable to find repository.yaml file at ${missingFile.getAbsolutePath}/repository.yaml")
+       RepositoryYamlUtils.loadRepositoryYamlFile(missingFile) shouldBe Left(s"Unable to find repository.yaml file at ${missingFile.getAbsolutePath}/repository.yaml. See https://confluence.tools.tax.service.gov.uk/x/k_8TCQ")
      }
    }
 
