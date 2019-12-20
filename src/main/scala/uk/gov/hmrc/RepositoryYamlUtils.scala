@@ -59,7 +59,7 @@ object RepositoryYamlUtils {
         .load(yamlString)
         .asInstanceOf[java.util.Map[String, String]]
         .asScala.toMap
-    }.toEither.left.map(_ => "File was not valid YAML")
+    }.toEither.left.map(_ => s"The ${repositoryYamlFile} file was not valid YAML")
   }
 
   def getRepoVisiblity(yaml: YAML): Either[String, RepoVisibility] = {

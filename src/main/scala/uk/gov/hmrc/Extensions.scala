@@ -22,7 +22,7 @@ object Extensions {
 
   // Try.toEither is not available for scala 2.10 used for the 0.13.x cross build, so use transform instead
   implicit class RichTry[T](t:Try[T]){
-    def toEither:Either[Throwable,T] = t.transform(s => Success(Right(s)), f => Success(Left(f))).get
+    def toEither: Either[Throwable,T] = t.transform(s => Success(Right(s)), f => Success(Left(f))).get
   }
 
 }

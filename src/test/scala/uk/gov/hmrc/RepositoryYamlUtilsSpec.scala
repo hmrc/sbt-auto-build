@@ -33,7 +33,7 @@ class RepositoryYamlUtilsSpec extends AnyWordSpec with Matchers {
 
   "loadYaml" should {
     "return an error if the file does not contain valid yaml" in {
-      RepositoryYamlUtils.loadYaml("garbage") shouldBe Left(s"File was not valid YAML")
+      RepositoryYamlUtils.loadYaml("garbage") shouldBe Left(s"The repository.yaml file was not valid YAML")
     }
     "return a map of keys to values if valid yaml" in {
       RepositoryYamlUtils.loadYaml(s"repoVisibility: ${Public.visibilityIdentifier}\nanotherKey: something") shouldBe
