@@ -1,7 +1,6 @@
 sudo: false
 language: scala
-scala:
-- 2.12.10
+script: sbt ^publishLocal ^test
 jdk:
 - openjdk8
 cache:

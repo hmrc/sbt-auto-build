@@ -20,7 +20,6 @@ import java.time.LocalDate
 
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, FileType}
-import org.eclipse.jgit.lib.{BranchConfig, Repository, StoredConfig}
 import sbt.Keys._
 import sbt.{Setting, _}
 
@@ -30,8 +29,9 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   val logger = ConsoleLogger()
 
-  val autoSourceHeader = SettingKey[Boolean]("autoSourceHeader", "generate open-source headers if LICENSE file exists")
-  val forceSourceHeader = SettingKey[Boolean]("forceSourceHeader", "forces generation of open-source headers regardless of LICENSE")
+  val forceLicenceHeader = SettingKey[Boolean]("forceLicenceHeader", "forces generation of Apache V2 Licence headers")
+
+  val currentYear = LocalDate.now().getYear.toString
 
   private val defaultAutoSettings: Seq[Setting[_]] =
     scalaSettings ++
@@ -40,7 +40,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
       PublishSettings() ++
       Resolvers() ++
       ArtefactDescription() ++
-      Seq(autoSourceHeader := true, forceSourceHeader := false)
+      Seq(forceLicenceHeader := false)
 
   override def requires: Plugins = AutomateHeaderPlugin
 
@@ -52,14 +52,14 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     // That caused potential evictions of the `twirl-api` library and inconsistencies depending on the version used by clients
     // See comment on https://jira.tools.tax.service.gov.uk/browse/BDOG-516
     val twirlCompileTemplates =
-      TaskKey[Seq[File]]("twirl-compile-templates", "Compile twirl templates into scala source files")
+    TaskKey[Seq[File]]("twirl-compile-templates", "Compile twirl templates into scala source files")
 
     val addedSettings = Seq(
       // targetJvm declared here means that anyone using the plugin will inherit this by default. It only needs to
       // be specified by clients if they want to override it
       targetJvm := "jvm-1.8",
       unmanagedSources.in(Compile, headerCreate) ++= sources.in(Compile, twirlCompileTemplates).value
-    ) ++ defaultAutoSettings ++ HeaderSettings(autoSourceHeader, forceSourceHeader)
+    ) ++ defaultAutoSettings ++ HeaderSettings(forceLicenceHeader)
 
     logger.info(s"SbtAutoBuildPlugin - adding ${addedSettings.size} build settings")
 
@@ -92,126 +92,28 @@ object PublishSettings {
 }
 
 // Enforce a standard licence header across all HMRC
+// public repo -> apache v2
+// private repo -> only copyright headers
 object HeaderSettings {
 
-  val license = new File("LICENSE")
-
   val commentStyles: Map[FileType, CommentStyle] = Map(
-    FileType.scala -> CommentStyle.CStyleBlockComment,
-    FileType.conf -> CommentStyle.HashLineComment,
-    FileType("html") -> CommentStyle.TwirlStyleBlockComment
+    FileType.scala -> CommentStyle.cStyleBlockComment,
+    FileType.conf -> CommentStyle.hashLineComment,
+    FileType("html") -> CommentStyle.twirlStyleBlockComment
   )
 
-  private def shouldGenerateHeaders(autoSource: Boolean, force: Boolean): Boolean = {
-    if (force) {
-      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - forceSourceHeader setting was true, source file headers will be generated regardless of LICENSE")
-      true
-    } else if (autoSource && license.exists()) {
-      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - LICENSE file exists, sbt-header will add Apache 2.0 license headers to each source file.")
-      true
-    } else {
-      SbtAutoBuildPlugin.logger.info("SbtAutoBuildPlugin - No LICENSE file found, please add one to the root of your repo or set forceSourceHeader=true")
-      false
-    }
-  }
-
-  def apply(autoSourceHeader: SettingKey[Boolean], forceSourceHeader: SettingKey[Boolean]): Seq[Setting[_]] = Seq(
-    headerLicense := {
-      if (shouldGenerateHeaders(autoSourceHeader.value, forceSourceHeader.value))
-        Some(HeaderLicense.ALv2(LocalDate.now().getYear.toString, "HM Revenue & Customs"))
-      else None
-    },
-    headerMappings := headerMappings.value ++ commentStyles
-  )
-}
-
-object ArtefactDescription {
-
-  def apply() = Seq(
-    homepage := Git.homepage,
-    organizationHomepage := Some(url("https://www.gov.uk/government/organisations/hm-revenue-customs")),
-    scmInfo := buildScmInfo,
-
-    // workaround for sbt/sbt#1834
-    pomPostProcess := {
-
-      import scala.xml.transform.{RewriteRule, RuleTransformer}
-      import scala.xml.{Node => XmlNode, NodeSeq => XmlNodeSeq, _}
-
-      node: XmlNode =>
-        new RuleTransformer(new RewriteRule {
-          override def transform(node: XmlNode): XmlNodeSeq = node match {
-            case e: Elem if e.label == "developers" =>
-              <developers>
-                {developers.value.map { dev =>
-                <developer>
-                  <id>{dev.id}</id>
-                  <name>{dev.name}</name>
-                  <email>{dev.email}</email>
-                  <url>{dev.url}</url>
-                </developer>
-              }}
-              </developers>
-            case _ => node
-          }
-        }).transform(node).head
-    }
-  )
-
-  def buildScmInfo: Option[ScmInfo] = {
-    for (connUrl <- Git.findRemoteConnectionUrl;
-         browserUrl <- Git.browserUrl)
-      yield ScmInfo(url(browserUrl), connUrl)
-  }
-}
-
-object Git extends Git {
-  override lazy val repository: Repository = {
-    import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-    val builder = new FileRepositoryBuilder
-    builder.findGitDir.build
-  }
-}
-
-trait Git {
-  val logger = ConsoleLogger()
-  val repository: Repository
-  lazy val config: StoredConfig = repository.getConfig
-
-  def homepage: Option[URL] = browserUrl map url
-
-  def browserUrl: Option[String] = {
-    findRemoteConnectionUrl map browserUrl
-  }
-
-  def findRemoteConnectionUrl: Option[String] = {
-    val currentBranchUrl = getUrlForBranch(repository.getBranch)
-
-    val url = currentBranchUrl.orElse(getUrlForBranch("master")).orElse(getUrlForRemote("origin"))
-
-    url.map { originUrl =>
-      val gitTcpRex = "^(git:\\/\\/)".r
-      gitTcpRex.replaceFirstIn(originUrl, "git@")
-    }
-  }
-
-  private def getUrlForBranch(name: String) = {
-    val branchConfig = new BranchConfig(config, name)
-    getUrlForRemote(branchConfig.getRemote)
-  }
-
-  private def getUrlForRemote(name: String) = {
-    Option(config.getString("remote", name, "url"))
-  }
-
-  private def browserUrl(remoteConnectionUrl: String): String = {
-    val removedProtocol = removeProtocol(remoteConnectionUrl)
-    val replacedSeparator = removedProtocol.toLowerCase.replaceFirst(":", "/")
-    val removedGitSuffix = replacedSeparator.replaceFirst(".git$", "")
-    s"https://$removedGitSuffix"
-  }
-
-  private def removeProtocol(connectionUrl: String): String = {
-    "^(git@|git://|https://)".r.replaceFirstIn(connectionUrl, "")
+  def apply(forceSourceHeader: SettingKey[Boolean]): Seq[Setting[_]] = {
+    Seq(
+      headerLicense := {
+        if (HeaderUtils.shouldGenerateHeaders(forceSourceHeader.value))
+          Some(HeaderLicense.ALv2(SbtAutoBuildPlugin.currentYear, "HM Revenue & Customs"))
+        else Some(HeaderLicense.Custom(
+          s"""|Copyright ${SbtAutoBuildPlugin.currentYear} HM Revenue & Customs
+              |
+              |""".stripMargin
+        ))
+      },
+      headerMappings := headerMappings.value ++ commentStyles
+    )
   }
 }
