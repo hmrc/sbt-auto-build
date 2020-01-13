@@ -68,7 +68,7 @@ to remove the licence info and replace it with a standard copyright notice.
 What it does
 ------------
 
-When enabled sbt-auto-build automatically adds the most commonly used settings in [sbt-utils](https://github.com/hmrc/) which are the settings collections:
+When enabled sbt-auto-build automatically adds the most commonly used settings in [sbt-settings](https://github.com/hmrc/sbt-settings) which are the settings collections:
 
 * scalaSettings
 * SbtBuildInfo
