@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import java.io.File
 import org.yaml.snakeyaml.Yaml
 
 import scala.collection.JavaConverters._
-import scala.io.Source
 import scala.util.Try
 
 object RepositoryYamlUtils {
+  // IntelliJ tries to remove this on import cleanup, but is required when cross building for sbt 0.13
   import Extensions.RichTry
 
   val repositoryYamlFile = "repository.yaml"

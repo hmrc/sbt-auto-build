@@ -27,7 +27,7 @@ lazy val project = Project(pluginName, file("."))
     addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "4.1.0"),
     libraryDependencies ++= Seq(
       "org.yaml"              % "snakeyaml"             % "1.25",
-      "org.eclipse.jgit"      % "org.eclipse.jgit.pgm"  % "4.11.9.201909030838-r" exclude("javax.jms", "jms") exclude("com.sun.jdmk", "jmxtools") exclude("com.sun.jmx", "jmxri"),
+      "org.eclipse.jgit"      % "org.eclipse.jgit"      % "4.11.9.201909030838-r",
       "org.scalatest"         %% "scalatest"            % "3.1.0"     % Test,
       "com.vladsch.flexmark"  % "flexmark-all"          % "0.35.10"   % Test
     ),
@@ -38,9 +38,7 @@ lazy val project = Project(pluginName, file("."))
     scriptedLaunchOpts := { scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
-    scriptedBufferLog := false,
-    // Make it so running 'test' also runs 'scripted' tests
-    test in Test := ((test in Test) dependsOn (scripted in Test).toTask("")).value
+    scriptedBufferLog := false
   )
 
 val publishSettings = Seq(
