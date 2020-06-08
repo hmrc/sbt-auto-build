@@ -24,7 +24,7 @@ lazy val project = Project(pluginName, file("."))
     crossSbtVersions := Vector("0.13.18", "1.3.4"),
     targetJvm := "jvm-1.8",
     addSbtPlugin("de.heikoseeberger" % "sbt-header"   % "4.1.0"),
-    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings" % "4.2.0"),
+    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings" % "4.3.0"),
     libraryDependencies ++= Seq(
       "org.yaml"              % "snakeyaml"             % "1.25",
       "org.eclipse.jgit"      % "org.eclipse.jgit"      % "4.11.9.201909030838-r",
@@ -35,9 +35,7 @@ lazy val project = Project(pluginName, file("."))
       Resolver.url("hmrc-sbt-plugin-releases", url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
     ),
     useCoursier := false, //Required to fix resolution for IntelliJ
-    scriptedLaunchOpts := { scriptedLaunchOpts.value ++
-      Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
-    },
+    scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
   )
 
@@ -48,11 +46,9 @@ val publishSettings = Seq(
     publishArtifact in(Test, packageSrc) := false
   )
 
-val headerSettings = {
-  Seq(
+val headerSettings = Seq(
     headerLicense := Some(HeaderLicense.ALv2(LocalDate.now().getYear.toString, "HM Revenue & Customs"))
   )
-}
 
 val artefactDescription =
     pomExtra := <url>https://www.gov.uk/government/organisations/hm-revenue-customs</url>
