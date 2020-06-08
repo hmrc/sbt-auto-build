@@ -1,6 +1,6 @@
 import java.time.LocalDate
 
-import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings, targetJvm}
+import uk.gov.hmrc.DefaultBuildSettings
 import uk.gov.hmrc.SbtBuildInfo
 
 val pluginName = "sbt-auto-build"
@@ -9,9 +9,9 @@ lazy val project = Project(pluginName, file("."))
   .enablePlugins(SbtPlugin)
   .enablePlugins(AutomateHeaderPlugin, SbtGitVersioning, SbtArtifactory)
   .settings(
-    scalaSettings ++
+    DefaultBuildSettings.scalaSettings ++
       SbtBuildInfo() ++
-      defaultSettings() ++
+      DefaultBuildSettings.defaultSettings() ++
       headerSettings ++
       publishSettings ++
       artefactDescription: _*
@@ -22,9 +22,9 @@ lazy val project = Project(pluginName, file("."))
     makePublicallyAvailableOnBintray := true,
     scalaVersion := "2.12.10",
     crossSbtVersions := Vector("0.13.18", "1.3.4"),
-    targetJvm := "jvm-1.8",
+    DefaultBuildSettings.targetJvm := "jvm-1.8",
     addSbtPlugin("de.heikoseeberger" % "sbt-header"   % "4.1.0"),
-    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings" % "4.3.0"),
+    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings" % "4.4.0"),
     libraryDependencies ++= Seq(
       "org.yaml"              % "snakeyaml"             % "1.25",
       "org.eclipse.jgit"      % "org.eclipse.jgit"      % "4.11.9.201909030838-r",
@@ -36,7 +36,8 @@ lazy val project = Project(pluginName, file("."))
     ),
     useCoursier := false, //Required to fix resolution for IntelliJ
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
-    scriptedBufferLog := false
+    scriptedBufferLog := false,
+    sbtVersion := (pluginCrossBuild / sbtVersion).value,
   )
 
 val publishSettings = Seq(

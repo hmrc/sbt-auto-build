@@ -22,10 +22,9 @@ import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, FileType}
 import sbt.Keys._
 import sbt.{Setting, _}
+import uk.gov.hmrc.DefaultBuildSettings
 
 object SbtAutoBuildPlugin extends AutoPlugin {
-
-  import uk.gov.hmrc.DefaultBuildSettings._
 
   val logger = ConsoleLogger()
 
@@ -34,9 +33,9 @@ object SbtAutoBuildPlugin extends AutoPlugin {
   val currentYear = LocalDate.now().getYear.toString
 
   private val defaultAutoSettings: Seq[Setting[_]] =
-    scalaSettings ++
+    DefaultBuildSettings.scalaSettings ++
       SbtBuildInfo() ++
-      defaultSettings() ++
+      DefaultBuildSettings.defaultSettings() ++
       PublishSettings() ++
       Resolvers() ++
       ArtefactDescription() ++
@@ -57,7 +56,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     val addedSettings = Seq(
       // targetJvm declared here means that anyone using the plugin will inherit this by default. It only needs to
       // be specified by clients if they want to override it
-      targetJvm := "jvm-1.8",
+      DefaultBuildSettings.targetJvm := "jvm-1.8",
       unmanagedSources.in(Compile, headerCreate) ++= sources.in(Compile, twirlCompileTemplates).value
     ) ++ defaultAutoSettings ++ HeaderSettings(forceLicenceHeader)
 
@@ -102,7 +101,7 @@ object HeaderSettings {
     FileType("html") -> CommentStyle.twirlStyleBlockComment
   )
 
-  def apply(forceSourceHeader: SettingKey[Boolean]): Seq[Setting[_]] = {
+  def apply(forceSourceHeader: SettingKey[Boolean]): Seq[Setting[_]] =
     Seq(
       headerLicense := {
         if (HeaderUtils.shouldGenerateHeaders(forceSourceHeader.value))
@@ -115,5 +114,4 @@ object HeaderSettings {
       },
       headerMappings := headerMappings.value ++ commentStyles
     )
-  }
 }
