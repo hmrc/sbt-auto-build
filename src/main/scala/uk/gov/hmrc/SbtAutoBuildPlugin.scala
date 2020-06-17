@@ -22,7 +22,6 @@ import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, FileType}
 import sbt.Keys._
 import sbt.{Setting, _}
-import uk.gov.hmrc.DefaultBuildSettings
 
 object SbtAutoBuildPlugin extends AutoPlugin {
 
