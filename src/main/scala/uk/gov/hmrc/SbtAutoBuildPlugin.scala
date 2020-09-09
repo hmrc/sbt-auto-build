@@ -66,14 +66,14 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 }
 
 object Resolvers {
-
-  val HmrcReleasesRepo = Resolver.bintrayRepo("hmrc", "releases")
-
   def apply(): Def.Setting[Seq[Resolver]] =
     resolvers := Seq(
       Opts.resolver.sonatypeReleases,
       Resolver.typesafeRepo("releases"),
-      HmrcReleasesRepo
+      // try internal artifactory before bintray
+      Resolver.url("hmrc-releases", url("https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"))(Resolver.ivyStylePatterns),
+      Resolver.bintrayRepo("hmrc", "releases"),
+      Resolver.bintrayIvyRepo("hmrc", "sbt-plugin-releases") // pointless? need to access the repo to get the sbt-auto-build plugin // is there a artifactory location to try first?
     )
 }
 
