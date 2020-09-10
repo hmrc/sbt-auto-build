@@ -67,14 +67,18 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
 object Resolvers {
   def apply(): Def.Setting[Seq[Resolver]] =
-    resolvers := Seq(
-      Opts.resolver.sonatypeReleases,
-      Resolver.typesafeRepo("releases"),
-      // try internal artifactory before bintray
-      Resolver.url("hmrc-releases", url("https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"))(Resolver.ivyStylePatterns),
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.bintrayIvyRepo("hmrc", "sbt-plugin-releases") // pointless? need to access the repo to get the sbt-auto-build plugin // is there a artifactory location to try first?
-    )
+    resolvers := {
+      // reduce timeout in case artifactory is not reachable (default is 2 min timeout)
+      System.setProperty("sun.net.client.defaultConnectTimeout", "1000")
+      Seq(
+        Opts.resolver.sonatypeReleases,
+        Resolver.typesafeRepo("releases"),
+        // try internal artifactory before bintray
+        Resolver.url("hmrc-releases", url("https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"))(Resolver.ivyStylePatterns),
+        Resolver.bintrayRepo("hmrc", "releases"),
+        Resolver.bintrayIvyRepo("hmrc", "sbt-plugin-releases") // pointless? need to access the repo to get the sbt-auto-build plugin // is there a artifactory location to try first?
+      )
+    }
 }
 
 object PublishSettings {
