@@ -66,15 +66,39 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 }
 
 object Resolvers {
+  val logger = ConsoleLogger()
 
-  val HmrcReleasesRepo = Resolver.bintrayRepo("hmrc", "releases")
+  def artifactoryResolvers: Seq[Resolver] = {
+    val artifactory = "https://artefacts.tax.service.gov.uk/artifactory"
+    val isArtifactoryReachable = {
+      val conn = new java.net.URL(s"$artifactory/api/system/ping").openConnection().asInstanceOf[java.net.HttpURLConnection]
+      conn.setConnectTimeout(1000)
+      try {
+        conn.getResponseCode
+        // we expect 200, but any response is enough to know that the hostname is reachable
+        true
+      } catch {
+        case _: java.net.SocketTimeoutException => false
+        case _: Throwable => true // an optimisation may be to mark Artifactory as not reachable if not responding well
+      }
+    }
+    if (isArtifactoryReachable) {
+      Seq(MavenRepository("hmrc-releases", s"$artifactory/hmrc-releases/"))
+    } else {
+      logger.warn(s"Artifactory is not reachable - will fall back to Bintray")
+      Seq.empty
+    }
+  }
 
   def apply(): Def.Setting[Seq[Resolver]] =
-    resolvers := Seq(
-      Opts.resolver.sonatypeReleases,
-      Resolver.typesafeRepo("releases"),
-      HmrcReleasesRepo
-    )
+    resolvers :=
+      Seq(
+        Opts.resolver.sonatypeReleases,
+        Resolver.typesafeRepo("releases")
+      ) ++
+       // try corporate artifactory before bintray, if reachable
+      artifactoryResolvers ++
+      Seq(Resolver.bintrayRepo("hmrc", "releases"))
 }
 
 object PublishSettings {
