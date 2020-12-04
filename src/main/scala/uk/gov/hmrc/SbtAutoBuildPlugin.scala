@@ -98,7 +98,10 @@ object Resolvers {
       ) ++
        // try corporate artifactory before bintray, if reachable
       artifactoryResolvers ++
-      Seq(Resolver.bintrayRepo("hmrc", "releases"))
+      Seq(
+        Resolver.bintrayRepo("hmrc", "releases"),
+        Resolver.bintrayRepo("hmrc-digital", "releases")
+      )
 }
 
 object PublishSettings {
