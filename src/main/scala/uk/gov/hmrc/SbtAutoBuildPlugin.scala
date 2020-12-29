@@ -50,14 +50,16 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     // That caused potential evictions of the `twirl-api` library and inconsistencies depending on the version used by clients
     // See comment on https://jira.tools.tax.service.gov.uk/browse/BDOG-516
     val twirlCompileTemplates =
-    TaskKey[Seq[File]]("twirl-compile-templates", "Compile twirl templates into scala source files")
+      TaskKey[Seq[File]]("twirl-compile-templates", "Compile twirl templates into scala source files")
 
     val addedSettings = Seq(
       // targetJvm declared here means that anyone using the plugin will inherit this by default. It only needs to
       // be specified by clients if they want to override it
       DefaultBuildSettings.targetJvm := "jvm-1.8",
       unmanagedSources.in(Compile, headerCreate) ++= sources.in(Compile, twirlCompileTemplates).value
-    ) ++ defaultAutoSettings ++ HeaderSettings(forceLicenceHeader)
+    ) ++
+      defaultAutoSettings ++
+      HeaderSettings(forceLicenceHeader)
 
     logger.info(s"SbtAutoBuildPlugin - adding ${addedSettings.size} build settings")
 

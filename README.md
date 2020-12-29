@@ -2,7 +2,7 @@
 
 
 
-This auto-plugin provides and applies common settings used across the HMRC platform. 
+This auto-plugin provides and applies common settings used across the HMRC platform.
 
 Usage
 -----
@@ -36,7 +36,7 @@ Add the line ```.enablePlugins(SbtAutoBuildPlugin)``` to your project to enable 
 
 ### Required header/licence setup
 
-In order to apply the correct licence or copyright headers to the start of all of your source files, 
+In order to apply the correct licence or copyright headers to the start of all of your source files,
 `sbt-auto-build` now enforces that:
 
  1. Your repository contains a `repository.yaml` file at the root of the project, with a valid `repoVisibility` identifier.
@@ -51,7 +51,7 @@ In order to apply the correct licence or copyright headers to the start of all o
 In the unlikely event that there is a need to tweak the licence headers added, then it is possible to override the settings
 used by the underlying [sbt-header](https://github.com/sbt/sbt-header) plugin.
 
-> There is also a settingKey `forceSourceHeader=true` which forces the generation of the Apache V2 licence regardless. 
+> There is also a settingKey `forceSourceHeader=true` which forces the generation of the Apache V2 licence regardless.
 > This should _not_ be used without good reason
 
 ### Why is this required now?
@@ -75,7 +75,9 @@ When enabled sbt-auto-build automatically adds the most commonly used settings i
 * defaultSettings
 * HeaderSettings
 
-It also automatically adds the  *sbt-utils* and *sbt-header* plugins. SBT header is on by default and will generate licence headers in your source files. As a result **you don't have to add licence headers to source files manually**
+It also automatically adds the  *sbt-settings* and *sbt-header* plugins. SBT header is on by default and will generate licence headers in your source files. As a result **you don't have to add licence headers to source files manually**
+
+To enable licence headers for IntegrationTests, just ensure you are using `.settings(DefaultBuildSettings.integrationTestSettings())` rather than `.settings(inConfig(IntegrationTest)(Defaults.itSettings))`
 
 To make the automatic addition of settings more visible you'll see output like this in your build:
 ```
