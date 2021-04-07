@@ -32,12 +32,12 @@ lazy val project = Project(pluginName, file("."))
       "com.vladsch.flexmark"  % "flexmark-all"          % "0.35.10"   % Test
     ),
     resolvers := Seq(
-      Resolver.url("hmrc-sbt-plugin-releases", url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
+      Resolver.url("HMRC-open-artefacts-ivy2", url("https://open.artefacts.tax.service.gov.uk/ivy2"))(Resolver.ivyStylePatterns)
     ),
     useCoursier := false, //Required to fix resolution for IntelliJ
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false,
-    sbtVersion := (pluginCrossBuild / sbtVersion).value,
+    sbtVersion := (pluginCrossBuild / sbtVersion).value
   )
 
 val publishSettings = Seq(

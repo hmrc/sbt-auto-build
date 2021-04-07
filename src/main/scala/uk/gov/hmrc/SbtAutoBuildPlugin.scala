@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,16 +29,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   val forceLicenceHeader = SettingKey[Boolean]("forceLicenceHeader", "forces generation of Apache V2 Licence headers")
 
-  val currentYear = LocalDate.now().getYear.toString
-
-  private val defaultAutoSettings: Seq[Setting[_]] =
-    DefaultBuildSettings.scalaSettings ++
-      SbtBuildInfo() ++
-      DefaultBuildSettings.defaultSettings() ++
-      PublishSettings() ++
-      Resolvers() ++
-      ArtefactDescription() ++
-      Seq(forceLicenceHeader := false)
+  val currentYear: String = LocalDate.now().getYear.toString
 
   override def requires: Plugins = AutomateHeaderPlugin
 
@@ -52,28 +43,45 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     val twirlCompileTemplates =
       TaskKey[Seq[File]]("twirl-compile-templates", "Compile twirl templates into scala source files")
 
-    val addedSettings = Seq(
+    logger.info(s"SbtAutoBuildPlugin - adding build settings")
+
+    Seq(
       // targetJvm declared here means that anyone using the plugin will inherit this by default. It only needs to
       // be specified by clients if they want to override it
       DefaultBuildSettings.targetJvm := "jvm-1.8",
       unmanagedSources.in(Compile, headerCreate) ++= sources.in(Compile, twirlCompileTemplates).value
     ) ++
-      defaultAutoSettings ++
+      DefaultBuildSettings.scalaSettings ++
+      SbtBuildInfo() ++
+      DefaultBuildSettings.defaultSettings() ++
+      PublishSettings() ++
+      Seq(resolvers := HmrcResolvers.resolvers()) ++
+      ArtefactDescription() ++
+      Seq(forceLicenceHeader := false) ++
       HeaderSettings(forceLicenceHeader)
-
-    logger.info(s"SbtAutoBuildPlugin - adding ${addedSettings.size} build settings")
-
-    addedSettings
   }
 }
 
-object Resolvers {
-  val logger = ConsoleLogger()
+object HmrcResolvers {
+  private val logger = ConsoleLogger()
 
-  def artifactoryResolvers: Seq[Resolver] = {
-    val artifactory = "https://artefacts.tax.service.gov.uk/artifactory"
-    val isArtifactoryReachable = {
-      val conn = new java.net.URL(s"$artifactory/api/system/ping").openConnection().asInstanceOf[java.net.HttpURLConnection]
+  private val artifactoryUrl = "https://artefacts.tax.service.gov.uk/artifactory"
+  private val artifactoryHealth = s"$artifactoryUrl/api/system/ping"
+
+  private val bintrayHealth = "https://dl.bintray.com/uk/gov/hmrc"
+
+  def resolvers(): Seq[Resolver] = Seq(
+    Opts.resolver.sonatypeReleases,
+    Resolver.typesafeRepo("releases")
+  ) ++
+    // try corporate artifactory before open artifacts, if reachable
+    Some(MavenRepository("hmrc-releases", s"$artifactoryUrl/hmrc-releases/")).filter(isHealthy(artifactoryHealth)).toSeq ++
+    Seq(MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2")) ++
+    Some(Resolver.bintrayRepo("hmrc", "releases")).filter(isHealthy(bintrayHealth)).toSeq
+
+  private def isHealthy(healthcheck: String)(resolver: Resolver): Boolean = {
+    val isReachable = {
+      val conn = new java.net.URL(healthcheck).openConnection().asInstanceOf[java.net.HttpURLConnection]
       conn.setConnectTimeout(1000)
       try {
         conn.getResponseCode
@@ -81,29 +89,14 @@ object Resolvers {
         true
       } catch {
         case _: java.net.SocketTimeoutException => false
-        case _: Throwable => true // an optimisation may be to mark Artifactory as not reachable if not responding well
+        case _: Throwable => true // an optimisation may be to mark as not reachable if not responding well
       }
     }
-    if (isArtifactoryReachable) {
-      Seq(MavenRepository("hmrc-releases", s"$artifactory/hmrc-releases/"))
-    } else {
-      logger.warn(s"Artifactory is not reachable - will fall back to Bintray")
-      Seq.empty
+    if (!isReachable) {
+      logger.warn(s"Resolver ${resolver.name} is not reachable")
     }
+    isReachable
   }
-
-  def apply(): Def.Setting[Seq[Resolver]] =
-    resolvers :=
-      Seq(
-        Opts.resolver.sonatypeReleases,
-        Resolver.typesafeRepo("releases")
-      ) ++
-       // try corporate artifactory before bintray, if reachable
-      artifactoryResolvers ++
-      Seq(
-        Resolver.bintrayRepo("hmrc", "releases"),
-        Resolver.bintrayRepo("hmrc-digital", "releases")
-      )
 }
 
 object PublishSettings {
