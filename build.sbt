@@ -23,13 +23,14 @@ lazy val project = Project(pluginName, file("."))
     scalaVersion := "2.12.10",
     crossSbtVersions := Vector("0.13.18", "1.3.4"),
     DefaultBuildSettings.targetJvm := "jvm-1.8",
-    addSbtPlugin("de.heikoseeberger" % "sbt-header"   % "4.1.0"),
-    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings" % "4.8.0"),
+    addSbtPlugin("de.heikoseeberger" % "sbt-header"       % "4.1.0"),
+    addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys" % "0.1.0"),
+    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"     % "4.8.0"),
     libraryDependencies ++= Seq(
-      "org.yaml"              % "snakeyaml"             % "1.25",
-      "org.eclipse.jgit"      % "org.eclipse.jgit"      % "4.11.9.201909030838-r",
+      "org.yaml"              %  "snakeyaml"            % "1.25",
+      "org.eclipse.jgit"      %  "org.eclipse.jgit"     % "4.11.9.201909030838-r",
       "org.scalatest"         %% "scalatest"            % "3.1.0"     % Test,
-      "com.vladsch.flexmark"  % "flexmark-all"          % "0.35.10"   % Test
+      "com.vladsch.flexmark"  %  "flexmark-all"         % "0.35.10"   % Test
     ),
     resolvers := Seq(
       Resolver.url("HMRC-open-artefacts-ivy2", url("https://open.artefacts.tax.service.gov.uk/ivy2"))(Resolver.ivyStylePatterns)
