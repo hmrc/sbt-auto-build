@@ -18,8 +18,8 @@ package uk.gov.hmrc
 
 import java.time.LocalDate
 
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
-import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, FileType}
+import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, HeaderPlugin, FileType}
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{HeaderLicense, headerCreate, headerLicense, headerMappings}
 import sbt.Keys._
 import sbt.{Setting, _}
 
@@ -31,9 +31,9 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   val currentYear: String = LocalDate.now().getYear.toString
 
-  override def requires: Plugins = AutomateHeaderPlugin
+  override def requires: Plugins = HeaderPlugin
 
-  override def trigger: PluginTrigger = noTrigger
+  override def trigger: PluginTrigger = allRequirements
 
   override lazy val projectSettings: Seq[Setting[_]] = {
 
@@ -134,5 +134,6 @@ object HeaderSettings {
         ))
       },
       headerMappings := headerMappings.value ++ commentStyles
-    )
+    ) ++
+    AutomateHeaderPlugin.autoImport.automateHeaderSettings(Compile, Test)
 }

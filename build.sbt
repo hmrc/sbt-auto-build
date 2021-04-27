@@ -18,12 +18,12 @@ lazy val project = Project(pluginName, file("."))
   )
   .settings(
     sbtPlugin := true,
-    majorVersion := 2,
+    majorVersion := 3,
     makePublicallyAvailableOnBintray := true,
     scalaVersion := "2.12.10",
     crossSbtVersions := Vector("0.13.18", "1.3.4"),
     DefaultBuildSettings.targetJvm := "jvm-1.8",
-    addSbtPlugin("de.heikoseeberger" % "sbt-header"       % "4.1.0"),
+    addSbtPlugin("de.heikoseeberger" % "sbt-header"       % "5.0.0"), // last cross-compiled version
     addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys" % "0.1.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"     % "4.8.0"),
     libraryDependencies ++= Seq(
