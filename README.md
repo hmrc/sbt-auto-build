@@ -35,7 +35,9 @@ where 'x.x.x' is the latest release as advertised above.
 Since 3.0.0, this plugin is auto-enabled. You can remove ```.enablePlugins(SbtAutoBuildPlugin)``` from your build.sbt.
 You will need to disable the plugin explicitly if you do not want to activate it for a module.
 
-You no longer need to add a dependency on `sbt-artifactory` to use the `makePublicallyAvailableOnBintray` setting. This setting key has been replaced by `isPublicArtefact` which is made available from `sbt-auto-build`.
+If you use the `makePublicallyAvailableOnBintray` setting provided by `sbt-artifactory`, this setting has been replaced by `isPublicArtefact` which is made available through `sbt-auto-build`. Please use `isPublicArtefact` instead, and remove `sbt-artifactory` from your project's plugins.sbt. This version is incompatible with a pre-1.15.0 version of sbt-artifactory; remove the sbt-artifactory dependency, as it's not required now.
+
+`sbt-git-versioning` is now provided transitively, and does not need to be added to your project's plugins.sbt. Note, `SbtGitVersioning` is also an auto-plugin and does not require explicit enabling.
 
 ### Required header/licence setup
 

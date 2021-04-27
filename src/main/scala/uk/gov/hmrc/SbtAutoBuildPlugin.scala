@@ -21,7 +21,7 @@ import java.time.LocalDate
 import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, HeaderPlugin, FileType}
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{HeaderLicense, headerCreate, headerLicense, headerMappings}
 import sbt.Keys._
-import sbt.{Setting, _}
+import sbt._
 
 object SbtAutoBuildPlugin extends AutoPlugin {
 
