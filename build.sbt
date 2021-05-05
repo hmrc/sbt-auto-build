@@ -10,8 +10,7 @@ lazy val project = Project("sbt-auto-build", file("."))
       SbtBuildInfo() ++
       DefaultBuildSettings.defaultSettings() ++
       headerSettings ++
-      publishSettings ++
-      artefactDescription: _*
+      publishSettings
   )
   .settings(
     sbtPlugin := true,
@@ -50,29 +49,3 @@ val publishSettings = Seq(
 val headerSettings = Seq(
     headerLicense := Some(HeaderLicense.ALv2(LocalDate.now().getYear.toString, "HM Revenue & Customs"))
   )
-
-val artefactDescription =
-    pomExtra := <url>https://www.gov.uk/government/organisations/hm-revenue-customs</url>
-      <licenses>
-        <license>
-          <name>Apache 2</name>
-          <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-      </licenses>
-      <scm>
-        <connection>scm:git@github.com:hmrc/sbt-auto-build.git</connection>
-        <developerConnection>scm:git@github.com:hmrc/sbt-auto-build.git</developerConnection>
-        <url>git@github.com:hmrc/sbt-auto-build.git</url>
-      </scm>
-      <developers>
-        <developer>
-          <id>charleskubicek</id>
-          <name>Charles Kubicek</name>
-          <url>http://www.equalexperts.com</url>
-        </developer>
-        <developer>
-          <id>duncancrawford</id>
-          <name>Duncan Crawford</name>
-          <url>http://www.equalexperts.com</url>
-        </developer>
-      </developers>
