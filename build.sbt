@@ -9,8 +9,7 @@ lazy val project = Project("sbt-auto-build", file("."))
     DefaultBuildSettings.scalaSettings ++
       SbtBuildInfo() ++
       DefaultBuildSettings.defaultSettings() ++
-      headerSettings ++
-      publishSettings
+      headerSettings
   )
   .settings(
     sbtPlugin := true,
@@ -33,17 +32,8 @@ lazy val project = Project("sbt-auto-build", file("."))
       MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2"),
       Resolver.url("HMRC-open-artefacts-ivy2", url("https://open.artefacts.tax.service.gov.uk/ivy2"))(Resolver.ivyStylePatterns)
     ),
-    useCoursier := false, //Required to fix resolution for IntelliJ
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
-    scriptedBufferLog := false,
-    sbtVersion := (pluginCrossBuild / sbtVersion).value
-  )
-
-val publishSettings = Seq(
-    publishArtifact := true,
-    publishArtifact in Test := false,
-    publishArtifact in(Test, packageDoc) := false,
-    publishArtifact in(Test, packageSrc) := false
+    scriptedBufferLog := false
   )
 
 val headerSettings = Seq(

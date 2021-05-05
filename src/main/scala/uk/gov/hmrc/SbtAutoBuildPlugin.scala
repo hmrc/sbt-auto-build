@@ -48,6 +48,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     Seq(
       // targetJvm declared here means that anyone using the plugin will inherit this by default. It only needs to
       // be specified by clients if they want to override it
+      // TODO default value should be set by DefaultBuildSettings.scalaSettings
       DefaultBuildSettings.targetJvm := "jvm-1.8",
       unmanagedSources.in(Compile, headerCreate) ++= sources.in(Compile, twirlCompileTemplates).value
     ) ++
@@ -99,6 +100,8 @@ object HmrcResolvers {
   }
 }
 
+// This is only needed for IntegrationTest Configuration
+// TODO move into DefaultBuildSettings.integrationTestSettings (if needed at all)
 object PublishSettings {
   def apply(): Seq[Def.Setting[Boolean]] = Seq(
     publishArtifact := true,
