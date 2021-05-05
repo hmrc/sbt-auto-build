@@ -20,19 +20,24 @@ Since major version 2, this plugin is cross compiled for sbt 1.x (specifically 1
 
 In your project/plugins.sbt file:
 ```
-resolvers += Resolver.url("hmrc-sbt-plugin-releases",
-  url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
+resolvers += MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2")
+resolvers += Resolver.url("HMRC-open-artefacts-ivy2", url("https://open.artefacts.tax.service.gov.uk/ivy2"))(Resolver.ivyStylePatterns)
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "x.x.x")
 ```
 
 where 'x.x.x' is the latest release as advertised above.
 
-We have added the resolver here, if you already have the 'https://dl.bintray.com/hmrc/sbt-plugin-releases' repo added there's no need to re-add it here.
-
-Add the line ```.enablePlugins(SbtAutoBuildPlugin)``` to your project to enable the plugin.
-
 ## Upgrading to the latest release
+
+### Version 3.0.0
+
+Since 3.0.0, this plugin is auto-enabled. You can remove ```.enablePlugins(SbtAutoBuildPlugin)``` from your build.sbt.
+You will need to disable the plugin explicitly if you do not want to activate it for a module.
+
+If you use the `makePublicallyAvailableOnBintray` setting provided by `sbt-artifactory`, this setting has been replaced by `isPublicArtefact` which is made available through `sbt-auto-build`. Please use `isPublicArtefact` instead, and remove `sbt-artifactory` from your project's plugins.sbt. This version is incompatible with a pre-1.15.0 version of sbt-artifactory; remove the sbt-artifactory dependency, as it's not required now.
+
+`sbt-git-versioning` is now provided transitively, and does not need to be added to your project's plugins.sbt. Note, `SbtGitVersioning` is also an auto-plugin and does not require explicit enabling.
 
 ### Required header/licence setup
 

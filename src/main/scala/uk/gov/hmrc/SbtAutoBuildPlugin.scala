@@ -18,10 +18,10 @@ package uk.gov.hmrc
 
 import java.time.LocalDate
 
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
-import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, FileType}
+import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, HeaderPlugin, FileType}
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{HeaderLicense, headerCreate, headerLicense, headerMappings}
 import sbt.Keys._
-import sbt.{Setting, _}
+import sbt._
 
 object SbtAutoBuildPlugin extends AutoPlugin {
 
@@ -31,9 +31,9 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   val currentYear: String = LocalDate.now().getYear.toString
 
-  override def requires: Plugins = AutomateHeaderPlugin
+  override def requires: Plugins = HeaderPlugin
 
-  override def trigger: PluginTrigger = noTrigger
+  override def trigger: PluginTrigger = allRequirements
 
   override lazy val projectSettings: Seq[Setting[_]] = {
 
@@ -48,6 +48,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     Seq(
       // targetJvm declared here means that anyone using the plugin will inherit this by default. It only needs to
       // be specified by clients if they want to override it
+      // TODO default value should be set by DefaultBuildSettings.scalaSettings
       DefaultBuildSettings.targetJvm := "jvm-1.8",
       unmanagedSources.in(Compile, headerCreate) ++= sources.in(Compile, twirlCompileTemplates).value
     ) ++
@@ -99,6 +100,8 @@ object HmrcResolvers {
   }
 }
 
+// This is only needed for IntegrationTest Configuration
+// TODO move into DefaultBuildSettings.integrationTestSettings (if needed at all)
 object PublishSettings {
   def apply(): Seq[Def.Setting[Boolean]] = Seq(
     publishArtifact := true,
@@ -134,5 +137,6 @@ object HeaderSettings {
         ))
       },
       headerMappings := headerMappings.value ++ commentStyles
-    )
+    ) ++
+    AutomateHeaderPlugin.autoImport.automateHeaderSettings(Compile, Test)
 }
