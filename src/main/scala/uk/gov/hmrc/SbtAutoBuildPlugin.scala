@@ -67,20 +67,23 @@ object HmrcResolvers {
   private val logger = ConsoleLogger()
 
   private val artifactoryUrl = "https://artefacts.tax.service.gov.uk/artifactory"
-  private val artifactoryHealth = s"$artifactoryUrl/api/system/ping"
-
-  private val bintrayHealth = "https://dl.bintray.com/uk/gov/hmrc"
 
   def resolvers(): Seq[Resolver] = Seq(
     Opts.resolver.sonatypeReleases,
     Resolver.typesafeRepo("releases")
   ) ++
     // try corporate artifactory before open artifacts, if reachable
-    Some(MavenRepository("hmrc-releases", s"$artifactoryUrl/hmrc-releases/")).filter(isHealthy(artifactoryHealth)).toSeq ++
-    Seq(MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2")) ++
-    Some(Resolver.bintrayRepo("hmrc", "releases")).filter(isHealthy(bintrayHealth)).toSeq
+    (if (isHealthy(s"$artifactoryUrl/api/system/ping"))
+      Seq(
+        MavenRepository("hmrc-releases", s"$artifactoryUrl/hmrc-releases/"),
+        MavenRepository("third-party-maven-releases", s"$artifactoryUrl/third-party-maven-releases/"),
+        Resolver.url("third-party-ivy-releases", url(s"$artifactoryUrl/third-party-ivy-releases"))(Resolver.ivyStylePatterns)
+      )
+     else Seq.empty
+    ) ++
+    Seq(MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2"))
 
-  private def isHealthy(healthcheck: String)(resolver: Resolver): Boolean = {
+  private def isHealthy(healthcheck: String): Boolean = {
     val isReachable = {
       val conn = new java.net.URL(healthcheck).openConnection().asInstanceOf[java.net.HttpURLConnection]
       conn.setConnectTimeout(1000)
@@ -94,7 +97,7 @@ object HmrcResolvers {
       }
     }
     if (!isReachable) {
-      logger.warn(s"Resolver ${resolver.name} is not reachable")
+      logger.warn(s"$healthcheck is not reachable")
     }
     isReachable
   }
