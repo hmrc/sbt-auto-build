@@ -83,9 +83,3 @@ When enabled sbt-auto-build automatically adds the most commonly used settings i
 It also automatically adds the  *sbt-settings* and *sbt-header* plugins. SBT header is on by default and will generate licence headers in your source files. As a result **you don't have to add licence headers to source files manually**
 
 To enable licence headers for IntegrationTests, just ensure you are using `.settings(DefaultBuildSettings.integrationTestSettings())` rather than `.settings(inConfig(IntegrationTest)(Defaults.itSettings))`
-
-To make the automatic addition of settings more visible you'll see output like this in your build:
-```
-[info] SbtAutoBuildPlugin adding 19 build settings:
-[info] buildinfo, buildinfo, buildinfoBuildnumber, buildinfoKeys, buildinfoKeys, buildinfoObject, buildinfoPackage, buildinfoPackage, fork, headers, initialCommands, isSnapshot, organization, packageOptions, parallelExecution, scalaVersion, scalacOptions, sourceGenerators, testOptions
-```
