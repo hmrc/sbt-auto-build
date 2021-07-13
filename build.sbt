@@ -21,7 +21,7 @@ lazy val project = Project("sbt-auto-build", file("."))
     addSbtPlugin("de.heikoseeberger" % "sbt-header"         % "5.0.0"), // last cross-compiled version
     addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys"   % "0.3.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.9.0"),
-    addSbtPlugin("uk.gov.hmrc"       % "sbt-git-versioning" % "2.3.0"),
+    addSbtPlugin("uk.gov.hmrc"       % "sbt-git-versioning" % "2.4.0"),
     libraryDependencies ++= Seq(
       "org.yaml"              %  "snakeyaml"            % "1.25",
       "org.eclipse.jgit"      %  "org.eclipse.jgit"     % "4.11.9.201909030838-r",
