@@ -18,6 +18,8 @@ package uk.gov.hmrc
 
 import java.nio.file.Path
 
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.{Ref, Repository, StoredConfig}
 import org.eclipse.jgit.revwalk.RevCommit
 import org.scalatest.{BeforeAndAfterEach, Suite}
 
@@ -33,18 +35,18 @@ trait GitRepository extends BeforeAndAfterEach { this: Suite =>
   // GitInfo, whilst could be declared in each test, is in the fixture, as it should be cleaned up after each test by calling close()
   var git: GitUtils = _
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     tempWorkDir = java.nio.file.Files.createTempDirectory("git_test")
     gitHelper = new GitHelper(tempWorkDir)
     git = new GitUtils {
-      override val repository = {
+      override val repository: Repository = {
         gitHelper.repo
       }
     }
     super.beforeEach() // To be stackable, must call super.beforeEach
   }
 
-  override def afterEach() = {
+  override def afterEach(): Unit = {
     try {
       super.afterEach() // To be stackable, must call super.afterEach
     }
@@ -59,35 +61,35 @@ import java.nio.file.Path
 
 class GitHelper(tempWorkDir: Path) {
 
-  val jgit = org.eclipse.jgit.api.Git.init().setDirectory(tempWorkDir.toFile).call()
-  val repo = jgit.getRepository
+  val jgit: Git = org.eclipse.jgit.api.Git.init().setDirectory(tempWorkDir.toFile).call()
+  val repo: Repository = jgit.getRepository
 
-  val currentBranch = repo.getFullBranch
-  val gitConfig = repo.getConfig
+  val currentBranch: String = repo.getFullBranch
+  val gitConfig: StoredConfig = repo.getConfig
 
-  def setRemote(name: String, url: String) = {
+  def setRemote(name: String, url: String): Unit = {
     gitConfig.setString("remote", name, "url", url)
     gitConfig.setString("remote", name, "fetch", s"+refs/heads/*:refs/remotes/$name/*")
   }
 
-  def setBranch(name: String, remote: String) = {
+  def setBranch(name: String, remote: String): Unit = {
     gitConfig.setString("branch", name, "remote", remote)
     gitConfig.setString("branch", name, "merge", s"refs/heads/$name")
   }
 
-  def setRemoteWithBranch(remote: String, branch: String, url: String) = {
+  def setRemoteWithBranch(remote: String, branch: String, url: String): Unit = {
     setRemote(remote, url)
     setBranch(branch, remote)
   }
 
-  def checkoutNewBranch(name: String) = {
+  def checkoutNewBranch(name: String): Ref = {
     val checkout = jgit.checkout()
     checkout.setName(name)
     checkout.setCreateBranch(true)
     checkout.call()
   }
 
-  def checkoutBranch(commit: RevCommit) = {
+  def checkoutBranch(commit: RevCommit): Ref = {
     val checkout = jgit.checkout()
     checkout.setStartPoint(commit)
     checkout.setCreateBranch(true)
@@ -95,12 +97,12 @@ class GitHelper(tempWorkDir: Path) {
     checkout.call()
   }
 
-  def createTestCommit() = {
+  def createTestCommit(): RevCommit = {
     val commit = jgit.commit()
     commit.setMessage("test commit")
     commit.call()
   }
 
-  def close() = jgit.close()
+  def close(): Unit = jgit.close()
 }
 

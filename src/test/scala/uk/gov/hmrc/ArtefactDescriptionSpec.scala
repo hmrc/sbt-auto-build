@@ -23,54 +23,44 @@ import org.scalatest.wordspec.AnyWordSpec
 class ArtefactDescriptionSpec extends AnyWordSpec with GitRepository with Matchers with OptionValues {
 
   "remote url" must {
-    "find the remote connection url for the current branch with a single remote" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:origin/non-existent.git")
+    "find the remote connection url for origin" in {
+      gitHelper.setRemote("origin", "git@github.com:origin/non-existent.git")
 
       gitHelper.createTestCommit()
 
-      git.findRemoteConnectionUrl.value shouldBe "git@github.com:origin/non-existent.git"
+      git.findRemoteConnectionUrl().value shouldBe "git@github.com:origin/non-existent.git"
     }
 
-    "find the remote connection url for the current branch with multiple remotes" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:origin/non-existent.git")
+    "find the remote connection url for origin when multiple remotes set" in {
+      gitHelper.setRemoteWithBranch("origin", "main", "git@github.com:origin/non-existent.git")
       gitHelper.setRemoteWithBranch("remote1", "branch1", "git@github.com:remote1/non-existent.git")
       gitHelper.setRemoteWithBranch("remote2", "branch2", "git@github.com:remote2/non-existent.git")
 
       gitHelper.createTestCommit()
 
-      git.findRemoteConnectionUrl.value shouldBe "git@github.com:origin/non-existent.git"
+      git.findRemoteConnectionUrl().value shouldBe "git@github.com:origin/non-existent.git"
 
       gitHelper.checkoutNewBranch("branch1")
 
-      git.findRemoteConnectionUrl.value shouldBe "git@github.com:remote1/non-existent.git"
+      git.findRemoteConnectionUrl().value shouldBe "git@github.com:origin/non-existent.git"
 
       gitHelper.checkoutNewBranch("branch2")
 
-      git.findRemoteConnectionUrl.value shouldBe "git@github.com:remote2/non-existent.git"
+      git.findRemoteConnectionUrl().value shouldBe "git@github.com:origin/non-existent.git"
     }
 
-    "find the remote connection url defaulted to the remote for master when in a branch without tracking info" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:origin/non-existent.git")
-
-      val rev = gitHelper.createTestCommit()
-
-      gitHelper.checkoutBranch(rev)
-
-      git.findRemoteConnectionUrl.value shouldBe "git@github.com:origin/non-existent.git"
-    }
-
-    "find the remote connection url defaulted to the origin remote when master does not exist" in {
+    "find the remote connection url defaulted to the origin remote when main branch does not exist" in {
       gitHelper.setRemote("origin","git@github.com:origin/non-existent.git")
 
       val rev = gitHelper.createTestCommit()
 
       gitHelper.checkoutBranch(rev)
 
-      git.findRemoteConnectionUrl.value shouldBe "git@github.com:origin/non-existent.git"
+      git.findRemoteConnectionUrl().value shouldBe "git@github.com:origin/non-existent.git"
     }
 
     "find the remote connection url when other branches have no url set" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:origin/non-existent.git")
+      gitHelper.setRemoteWithBranch("origin", "main", "git@github.com:origin/non-existent.git")
 
       // One possible situation this occurs is if there is a remote section in the global config,
       // for example, to set the refspec or other properties globally, but that remote doesn't exist in the
@@ -81,43 +71,51 @@ class ArtefactDescriptionSpec extends AnyWordSpec with GitRepository with Matche
       gitHelper.createTestCommit()
 
       gitHelper.checkoutNewBranch("branch1")
-      git.findRemoteConnectionUrl.value shouldBe "git@github.com:origin/non-existent.git"
+      git.findRemoteConnectionUrl().value shouldBe "git@github.com:origin/non-existent.git"
 
       gitHelper.checkoutNewBranch("branch2")
 
-      git.findRemoteConnectionUrl.value shouldBe "git@github.com:remote2/non-existent.git"
+      git.findRemoteConnectionUrl().value shouldBe "git@github.com:origin/non-existent.git"
+    }
+
+    "return None when origin is not set" in {
+      git.findRemoteConnectionUrl() shouldBe None
+
+      gitHelper.setRemoteWithBranch("upstream", "main", "git@github.com:origin/non-existent.git")
+
+      git.findRemoteConnectionUrl() shouldBe None
     }
 
     "transform remote connection url with git:// to git@" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git://github.com:hmrc/sbt-auto-build1.git")
-      git.findRemoteConnectionUrl.value shouldBe "git@github.com:hmrc/sbt-auto-build1.git"
+      gitHelper.setRemoteWithBranch("origin", "main", "git://github.com:hmrc/sbt-auto-build1.git")
+      git.findRemoteConnectionUrl().value shouldBe "git@github.com:hmrc/sbt-auto-build1.git"
     }
   }
 
   "create the browser url" should {
     "be created when connection url starting with 'git@'" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:hmrc/sbt-auto-build.git")
-      git.browserUrl.value shouldBe "https://github.com/hmrc/sbt-auto-build"
+      gitHelper.setRemoteWithBranch("origin", "main", "git@github.com:hmrc/sbt-auto-build.git")
+      git.browserUrl().value shouldBe "https://github.com/hmrc/sbt-auto-build"
     }
 
     "be created when connection url starting with 'git@' on a fork" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git@github.com:hmrc-collaborator/sbt-auto-build.git")
-      git.browserUrl.value shouldBe "https://github.com/hmrc-collaborator/sbt-auto-build"
+      gitHelper.setRemoteWithBranch("origin", "main", "git@github.com:hmrc-collaborator/sbt-auto-build.git")
+      git.browserUrl().value shouldBe "https://github.com/hmrc-collaborator/sbt-auto-build"
     }
 
     "be created when connection url starting with 'https://" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "https://github.com/hmrc/sbt-auto-build.git")
-      git.browserUrl.value shouldBe "https://github.com/hmrc/sbt-auto-build"
+      gitHelper.setRemoteWithBranch("origin", "main", "https://github.com/hmrc/sbt-auto-build.git")
+      git.browserUrl().value shouldBe "https://github.com/hmrc/sbt-auto-build"
     }
 
     "be created when connection url starting with 'git://'" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git://github.com:hmrc/sbt-auto-build.git")
-      git.browserUrl.value shouldBe "https://github.com/hmrc/sbt-auto-build"
+      gitHelper.setRemoteWithBranch("origin", "main", "git://github.com:hmrc/sbt-auto-build.git")
+      git.browserUrl().value shouldBe "https://github.com/hmrc/sbt-auto-build"
     }
 
     "be created when connection url has repo organisation in capitals" in {
-      gitHelper.setRemoteWithBranch("origin", "master", "git://github.com:HMRC/sbt-auto-build.git")
-      git.browserUrl.value shouldBe "https://github.com/hmrc/sbt-auto-build"
+      gitHelper.setRemoteWithBranch("origin", "main", "git://github.com:HMRC/sbt-auto-build.git")
+      git.browserUrl().value shouldBe "https://github.com/hmrc/sbt-auto-build"
     }
   }
 }
