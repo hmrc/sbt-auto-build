@@ -46,7 +46,7 @@ In order to apply the correct licence or copyright headers to the start of all o
 
  1. Your repository contains a `repository.yaml` file at the root of the project, with a valid `repoVisibility` identifier.
  See [here](https://confluence.tools.tax.service.gov.uk/x/k_8TCQ) for more info
- 1. If your repository is marked as being *public*: A `LICENSE` file _must_ exist, and must be the Apache V2.0 licence, like [this one](https://github.com/hmrc/service-dependencies/blob/master/LICENSE)
+ 1. If your repository is marked as being *public*: A `LICENSE` file _must_ exist, and must be the Apache V2.0 licence, like [this one](https://github.com/hmrc/service-dependencies/blob/HEAD/LICENSE)
  1. If your repository is marked as being *private*: A `LICENSE` file _must not_ exist
 
 > Note the spelling of the LICENSE file with an `S` not a `C`

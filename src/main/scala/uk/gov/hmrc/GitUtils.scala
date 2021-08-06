@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc
 
-import org.eclipse.jgit.lib.{BranchConfig, Repository, StoredConfig}
+import org.eclipse.jgit.lib.{Repository, StoredConfig}
 import sbt.{ConsoleLogger, URL, _}
 
 object GitUtils extends GitUtils {
@@ -32,40 +32,15 @@ trait GitUtils {
   val repository: Repository
   lazy val config: StoredConfig = repository.getConfig
 
-  def homepage: Option[URL] = browserUrl map url
+  def homepage: Option[URL] = browserUrl().map(url)
 
-  def browserUrl: Option[String] = {
-    findRemoteConnectionUrl map browserUrl
+  def browserUrl(): Option[String] = remoteUrl().map { url =>
+    "https://" + url.stripPrefix("git@").stripPrefix("git://").stripPrefix("https://").replaceFirst(":", "/").stripSuffix(".git").toLowerCase
   }
 
-  def findRemoteConnectionUrl: Option[String] = {
-    val currentBranchUrl = getUrlForBranch(repository.getBranch)
-
-    val url = currentBranchUrl.orElse(getUrlForBranch("master")).orElse(getUrlForRemote("origin"))
-
-    url.map { originUrl =>
-      val gitTcpRex = "^(git:\\/\\/)".r
-      gitTcpRex.replaceFirstIn(originUrl, "git@")
-    }
+  def findRemoteConnectionUrl(): Option[String] = remoteUrl().map { url =>
+    "git@" + url.stripPrefix("git@").stripPrefix("git://")
   }
 
-  private def getUrlForBranch(name: String): Option[String] = {
-    val branchConfig = new BranchConfig(config, name)
-    getUrlForRemote(branchConfig.getRemote)
-  }
-
-  private def getUrlForRemote(name: String): Option[String] = {
-    Option(config.getString("remote", name, "url"))
-  }
-
-  private def browserUrl(remoteConnectionUrl: String): String = {
-    val removedProtocol = removeProtocol(remoteConnectionUrl)
-    val replacedSeparator = removedProtocol.toLowerCase.replaceFirst(":", "/")
-    val removedGitSuffix = replacedSeparator.replaceFirst(".git$", "")
-    s"https://$removedGitSuffix"
-  }
-
-  private def removeProtocol(connectionUrl: String): String = {
-    "^(git@|git://|https://)".r.replaceFirstIn(connectionUrl, "")
-  }
+  private def remoteUrl(): Option[String] = Option(config.getString("remote", "origin", "url"))
 }

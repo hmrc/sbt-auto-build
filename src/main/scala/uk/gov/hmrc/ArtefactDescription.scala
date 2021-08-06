@@ -18,6 +18,8 @@ package uk.gov.hmrc
 
 import sbt.Keys.{developers, homepage, organizationHomepage, pomPostProcess, scmInfo}
 import sbt.{ScmInfo, url}
+import scala.xml.transform.{RewriteRule, RuleTransformer}
+import scala.xml._
 
 object ArtefactDescription {
 
@@ -28,13 +30,9 @@ object ArtefactDescription {
 
     // workaround for sbt/sbt#1834
     pomPostProcess := {
-
-      import scala.xml.transform.{RewriteRule, RuleTransformer}
-      import scala.xml.{Node => XmlNode, NodeSeq => XmlNodeSeq, _}
-
-      node: XmlNode =>
+      node: Node =>
         new RuleTransformer(new RewriteRule {
-          override def transform(node: XmlNode): XmlNodeSeq = node match {
+          override def transform(node: Node): NodeSeq = node match {
             case e: Elem if e.label == "developers" =>
               <developers>
                 {developers.value.map { dev =>
@@ -52,9 +50,8 @@ object ArtefactDescription {
     }
   )
 
-  def buildScmInfo: Option[ScmInfo] = {
-    for (connUrl <- GitUtils.findRemoteConnectionUrl;
-         browserUrl <- GitUtils.browserUrl)
-      yield ScmInfo(url(browserUrl), connUrl)
-  }
+  def buildScmInfo: Option[ScmInfo] = for {
+      connUrl <- GitUtils.findRemoteConnectionUrl;
+      browserUrl <- GitUtils.browserUrl
+    } yield ScmInfo(url(browserUrl), connUrl)
 }
