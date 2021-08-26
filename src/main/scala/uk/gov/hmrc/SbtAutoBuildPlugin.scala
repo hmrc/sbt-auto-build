@@ -19,7 +19,7 @@ package uk.gov.hmrc
 import java.time.LocalDate
 
 import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, HeaderPlugin, FileType}
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{HeaderLicense, headerCreate, headerLicense, headerMappings}
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{HeaderLicense, headerLicense, headerMappings, headerSources}
 import sbt.Keys._
 import sbt._
 
@@ -50,7 +50,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
       // be specified by clients if they want to override it
       // TODO default value should be set by DefaultBuildSettings.scalaSettings
       DefaultBuildSettings.targetJvm := "jvm-1.8",
-      unmanagedSources.in(Compile, headerCreate) ++= sources.in(Compile, twirlCompileTemplates).value
+      headerSources.in(Compile) ++= sources.in(Compile, twirlCompileTemplates).value
     ) ++
       DefaultBuildSettings.scalaSettings ++
       SbtBuildInfo() ++
