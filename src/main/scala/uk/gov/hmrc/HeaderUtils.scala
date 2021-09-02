@@ -31,8 +31,11 @@ object HeaderUtils {
   // Standard Apache v2 LICENSE (same as the one in this repo), after being trimmed of leading and trailing whitespace.
   // The reason for that is the official Apache licence has a beginning blank line, whereas the copy in most hmrc repo's
   // does not have that.
-  val licenceFileExpectedMD5 = "733ee64399ecdc51b3ab17c423271ccb"
-  val licenceFileExpectedMD5_2 = "3d113347136ff8800e34bb85c10182e0" //Older variant with {} replaced by []
+  val licenceFileExpectedMD5 = "cc1a9e33dd7a6eb0b79927742cf005c"
+  val licenceFileExpectedMD5_Windows = "733ee64399ecdc51b3ab17c423271ccb"
+  //Older variant with {} replaced by []
+  val licenceFileExpectedMD5_2 = "6c4db32a2fa8717faffa1d4f10136f47"
+  val licenceFileExpectedMD5_2_Windows = "3d113347136ff8800e34bb85c10182e0"
 
   def md5HashString(s: String): String = {
     import java.math.BigInteger
@@ -53,7 +56,7 @@ object HeaderUtils {
           // .right projection required to remain backwards compatible with scala 2.10 cross build (for sbt 0.13)
           .right.flatMap(c =>
           Either.cond(
-            Seq(licenceFileExpectedMD5, licenceFileExpectedMD5_2).contains(md5HashString(c.trim)),
+            Seq(licenceFileExpectedMD5, licenceFileExpectedMD5_Windows, licenceFileExpectedMD5_2, licenceFileExpectedMD5_2_Windows).contains(md5HashString(c.trim)),
             right = (),
             left = s"The LICENSE file does not contain the appropriate Apache V2 licence. It should match https://www.apache.org/licenses/LICENSE-2.0.txt"
           )
