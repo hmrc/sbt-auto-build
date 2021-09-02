@@ -17,17 +17,18 @@
 package uk.gov.hmrc
 
 import java.io.File
-
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.RepositoryYamlUtils.{Private, Public}
+
+import java.nio.file.Paths
 
 class RepositoryYamlUtilsSpec extends AnyWordSpec with Matchers {
 
    "loadRepositoryYamlFile" should {
      "return an error if the file does not exist" in {
        val missingFile = new File("missing")
-       RepositoryYamlUtils.loadRepositoryYamlFile(missingFile) shouldBe Left(s"Unable to find repository.yaml file at ${missingFile.getAbsolutePath}/repository.yaml. See https://confluence.tools.tax.service.gov.uk/x/k_8TCQ")
+       RepositoryYamlUtils.loadRepositoryYamlFile(missingFile) shouldBe Left(s"Unable to find repository.yaml file at ${Paths.get(missingFile.getAbsolutePath, "repository.yaml")}. See https://confluence.tools.tax.service.gov.uk/x/k_8TCQ")
      }
    }
 
