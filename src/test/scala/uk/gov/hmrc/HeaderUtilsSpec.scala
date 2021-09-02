@@ -29,13 +29,13 @@ class HeaderUtilsSpec extends AnyWordSpec with Matchers {
       val f = new File(getClass.getResource("/LICENSE_APACHE_V2_OLD").getPath)
       val content = FileUtils.readFileAsString(f)
 
-      HeaderUtils.md5HashString(content.success.value.trim) shouldBe "6c4db32a2fa8717faffa1d4f10136f47"
+      HeaderUtils.md5HashString(content.success.value.trim) shouldBe "b3893345f6b2cf9623fc3894ea83378b"
     }
     "return the correct MD5 hash of the licence file (current)" in {
       val f = new File(getClass.getResource("/LICENSE_APACHE_V2_CURRENT").getPath)
       val content = FileUtils.readFileAsString(f)
 
-      HeaderUtils.md5HashString(content.success.value.trim) shouldBe "cc1a9e33dd7a6eb0b79927742cf005c"
+      HeaderUtils.md5HashString(content.success.value.trim) shouldBe "721d5e495a063f455823352ea23420cd"
     }
   }
 
