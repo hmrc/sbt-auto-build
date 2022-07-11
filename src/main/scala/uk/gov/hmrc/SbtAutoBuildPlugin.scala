@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     logger.info(s"SbtAutoBuildPlugin - adding build settings")
 
     Seq(
-      // targetJvm declared here means that anyone using the plugin will inherit this by default. It only needs to
-      // be specified by clients if they want to override it
-      // TODO default value should be set by DefaultBuildSettings.scalaSettings
-      DefaultBuildSettings.targetJvm := "jvm-1.8",
-      headerSources.in(Compile) ++= sources.in(Compile, twirlCompileTemplates).value
+      Compile / headerSources ++= (Compile / twirlCompileTemplates / sources).value
     ) ++
       DefaultBuildSettings.scalaSettings ++
       SbtBuildInfo() ++
@@ -103,17 +99,11 @@ object HmrcResolvers {
   }
 }
 
-// This is only needed for IntegrationTest Configuration
-// TODO move into DefaultBuildSettings.integrationTestSettings (if needed at all)
 object PublishSettings {
   def apply(): Seq[Def.Setting[Boolean]] = Seq(
     publishArtifact := true,
-    publishArtifact in Test := false,
-    publishArtifact in IntegrationTest := false,
-    publishArtifact in(Test, packageDoc) := false,
-    publishArtifact in(Test, packageSrc) := false,
-    publishArtifact in(IntegrationTest, packageDoc) := false,
-    publishArtifact in(IntegrationTest, packageSrc) := false
+    Test / publishArtifact := false,
+    IntegrationTest / publishArtifact  := false,
   )
 }
 
@@ -123,8 +113,8 @@ object PublishSettings {
 object HeaderSettings {
 
   val commentStyles: Map[FileType, CommentStyle] = Map(
-    FileType.scala -> CommentStyle.cStyleBlockComment,
-    FileType.conf -> CommentStyle.hashLineComment,
+    FileType.scala   -> CommentStyle.cStyleBlockComment,
+    FileType.conf    -> CommentStyle.hashLineComment,
     FileType("html") -> CommentStyle.twirlStyleBlockComment
   )
 

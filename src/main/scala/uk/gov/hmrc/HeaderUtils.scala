@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,6 @@ import java.io.File
 import uk.gov.hmrc.RepositoryYamlUtils.{Private, Public, RepoVisibility}
 
 object HeaderUtils {
-
-  // IntelliJ tries to remove this on import cleanup, but is required when cross building for sbt 0.13
-  import Extensions.RichTry
-
   val licenceFile = new File("LICENSE")
   val repositoryYamlFile = new File("repository.yaml")
   // Standard Apache v2 LICENSE (same as the one in this repo), after being trimmed of leading and trailing whitespace.
@@ -45,13 +41,12 @@ object HeaderUtils {
 
   def checkLicenceFile(repoVisibility: RepoVisibility): Either[String, Unit] = repoVisibility match {
     case Private =>
-      if(licenceFile.exists()) Left(s"LICENSE file exists but the repository is marked as private. Please remove it")
+      if (licenceFile.exists()) Left(s"LICENSE file exists but the repository is marked as private. Please remove it")
       else Right(())
     case Public =>
       if (licenceFile.exists()) {
         FileUtils.readFileAsString(licenceFile).toEither.left.map(_ => s"Problem reading LICENSE file")
-          // .right projection required to remain backwards compatible with scala 2.10 cross build (for sbt 0.13)
-          .right.flatMap(c =>
+          .flatMap(c =>
           if (Seq(licenceFileExpectedMD5, licenceFileExpectedMD5_2).contains(md5HashString(c.trim))) Right(())
           else Left(s"The LICENSE file does not contain the appropriate Apache V2 licence. It should match https://www.apache.org/licenses/LICENSE-2.0.txt")
         )
@@ -61,13 +56,13 @@ object HeaderUtils {
 
   def shouldGenerateHeaders(force: Boolean): Boolean = {
 
-    // .right projection required to remain backwards compatible with scala 2.10 cross build (for sbt 0.13)
-    lazy val errorOrVisibility = for {
-      yamlString <- RepositoryYamlUtils.loadRepositoryYamlFile(new File("")).right
-      yaml <- RepositoryYamlUtils.loadYaml(yamlString).right
-      repoVisibility <- RepositoryYamlUtils.getRepoVisiblity(yaml).right
-      _ <- checkLicenceFile(repoVisibility).right
-    } yield repoVisibility
+    lazy val errorOrVisibility =
+      for {
+        yamlString     <- RepositoryYamlUtils.loadRepositoryYamlFile(new File(""))
+        yaml           <- RepositoryYamlUtils.loadYaml(yamlString)
+        repoVisibility <- RepositoryYamlUtils.getRepoVisiblity(yaml)
+        _              <- checkLicenceFile(repoVisibility)
+      } yield repoVisibility
 
     if (force) {
       SbtAutoBuildPlugin.logger.info(s"SbtAutoBuildPlugin - ${SbtAutoBuildPlugin.forceLicenceHeader.key.label} setting was set to true, Apache 2.0 licence file headers will be generated regardless")
@@ -83,5 +78,4 @@ object HeaderUtils {
         sys.error(s"SbtAutoBuildPlugin - Error, please fix: $error")
     }
   }
-
 }
