@@ -7,17 +7,6 @@ This auto-plugin provides and applies common settings used across the HMRC platf
 Usage
 -----
 
-## Sbt 1.x
-
-Since major version 2, this plugin is cross compiled for sbt 1.x (specifically 1.3.4).
-
-> Also see upgrade notes for version 2 below
-
-| Sbt version | Plugin version |
-| ----------- | -------------- |
-| `0.13.x`    | `any`          |
-| `>= 1.x`    | `>= 2.x`       |
-
 In your project/plugins.sbt file:
 ```
 resolvers += MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2")
@@ -26,7 +15,17 @@ resolvers += Resolver.url("HMRC-open-artefacts-ivy2", url("https://open.artefact
 addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "x.x.x")
 ```
 
-where 'x.x.x' is the latest release as advertised above.
+where 'x.x.x' is the latest release.
+
+## Sbt 1.x
+
+The library has supported sbt 1.x since version `2.0.0` and has dropped support for sbt 0.13 since `3.7.0`
+
+| Sbt version | Plugin version |
+| ----------- | -------------- |
+| `>= 1.x`    | `>= 2.0.0`     |
+| `0.13.x`    | `<= 3.6.0`     |
+
 
 ## Upgrading to the latest release
 

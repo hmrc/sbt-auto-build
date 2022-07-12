@@ -16,6 +16,7 @@ dist
 /.settings
 *.iws
 .bloop/
+.bsp/
 .metals/
 .vscode/
 project/metals.sbt
