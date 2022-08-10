@@ -15,7 +15,7 @@ lazy val project = Project("sbt-auto-build", file("."))
     sbtPlugin := true,
     majorVersion := 3,
     isPublicArtefact := true,
-    scalaVersion := "2.12.14",
+    scalaVersion := "2.12.16",
     crossSbtVersions := Vector("1.3.4"),
     addSbtPlugin("de.heikoseeberger" % "sbt-header"         % "5.7.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys"   % "0.3.0"),
@@ -24,6 +24,7 @@ lazy val project = Project("sbt-auto-build", file("."))
     libraryDependencies ++= Seq(
       "org.yaml"              %  "snakeyaml"            % "1.25",
       "org.eclipse.jgit"      %  "org.eclipse.jgit"     % "4.11.9.201909030838-r",
+      "commons-codec"         %  "commons-codec"        % "1.15", // updates version provided by org.eclipse.jgit
       "org.scalatest"         %% "scalatest"            % "3.1.0"     % Test,
       "com.vladsch.flexmark"  %  "flexmark-all"         % "0.35.10"   % Test
     ),
