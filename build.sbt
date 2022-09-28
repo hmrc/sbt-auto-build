@@ -15,11 +15,11 @@ lazy val project = Project("sbt-auto-build", file("."))
     sbtPlugin := true,
     majorVersion := 3,
     isPublicArtefact := true,
-    scalaVersion := "2.12.16",
+    scalaVersion := "2.12.17",
     crossSbtVersions := Vector("1.3.4"),
     addSbtPlugin("de.heikoseeberger" % "sbt-header"         % "5.7.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys"   % "0.3.0"),
-    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.11.0"),
+    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.12.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-git-versioning" % "2.4.0"),
     libraryDependencies ++= Seq(
       "org.yaml"              %  "snakeyaml"            % "1.25",
