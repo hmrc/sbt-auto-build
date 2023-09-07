@@ -38,7 +38,7 @@ object SbtAutoBuildPlugin extends AutoPlugin {
   // These can be overridden per module or with Global or ThisBuild scopes
   override def globalSettings: Seq[Setting[_]] = {
     logger.info(s"SbtAutoBuildPlugin - adding global settings")
-    DefaultBuildSettings.scalaSettings ++ // others to move to buildSettings?
+    DefaultBuildSettings.scalaSettings ++
       SbtBuildInfo() ++
       DefaultBuildSettings.defaultSettings() ++
       PublishSettings() ++
