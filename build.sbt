@@ -31,7 +31,21 @@ lazy val project = Project("sbt-auto-build", file("."))
       MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2"),
       Resolver.url("HMRC-open-artefacts-ivy2", url("https://open.artefacts.tax.service.gov.uk/ivy2"))(Resolver.ivyStylePatterns)
     ),
-    scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
+    scriptedLaunchOpts ++= {
+      val homeDir = sys.props.get("jenkins.home").orElse(sys.props.get("user.home")).getOrElse("")
+      val sbtHome = file(homeDir) / ".sbt"
+      Seq(
+        "-Xmx1024M",
+        "-Dplugin.version=" + version.value,
+        s"-Dsbt.override.build.repos=${sys.props.getOrElse("sbt.override.build.repos", "false")}",
+        // s"-Dsbt.global.base=$sbtHome/.sbt",
+        // Global base is overwritten with <tmp scripted>/global and can not be reconfigured
+        // We have to explicitly set all the params that rely on base
+        s"-Dsbt.boot.directory=${sbtHome / "boot"}",
+        s"-Dsbt.repository.config=${sbtHome / "repositories"}",
+        s"-Dsbt.boot.properties=file:///${sbtHome / "sbt.boot.properties"}",
+      )
+    },
     scriptedBufferLog := false
   )
 

@@ -1,0 +1,88 @@
+[info] welcome to sbt 1.5.8 (Private Build Java 1.8.0_342)
+[info] loading settings for project global-plugins from plugins.sbt ...
+[info] loading global plugins from /home/colin/.sbt/1.0/plugins
+[info] loading settings for project sbt-auto-build-build-build-build from metals.sbt ...
+[info] loading project definition from /home/colin/Workspaces/hmrc/sbt-auto-build/project/project/project
+[info] loading settings for project sbt-auto-build-build-build from metals.sbt ...
+[info] loading project definition from /home/colin/Workspaces/hmrc/sbt-auto-build/project/project
+[success] Generated .bloop/sbt-auto-build-build-build.json
+[success] Total time: 1 s, completed 10-Aug-2022 13:10:03
+[info] loading settings for project sbt-auto-build-build from metals.sbt,plugins.sbt ...
+[info] loading project definition from /home/colin/Workspaces/hmrc/sbt-auto-build/project
+[success] Generated .bloop/sbt-auto-build-build.json
+[success] Total time: 1 s, completed 10-Aug-2022 13:10:04
+[info] loading settings for project sbt-auto-build from build.sbt ...
+[info] set current project to sbt-auto-build (in build file:/home/colin/Workspaces/hmrc/sbt-auto-build/)
+[warn] there's a key that's not used by any other settings/tasks:
+[warn]  
+[warn] * sbt-auto-build / crossSbtVersions
+[warn]   +- /home/colin/Workspaces/hmrc/sbt-auto-build/build.sbt:20
+[warn]  
+[warn] note: a setting might still be used by a command; to exclude a key from this `lintUnused` check
+[warn] either append it to `Global / excludeLintKeys` or call .withRank(KeyRanks.Invisible) on the key
+[info] uk.gov.hmrc:sbt-auto-build:3.6.1
+[info]   +-commons-codec:commons-codec:1.15
+[info]   +-de.heikoseeberger:sbt-header:5.7.0
+[info]   +-org.eclipse.jgit:org.eclipse.jgit:4.11.9.201909030838-r
+[info]   | +-com.googlecode.javaewah:JavaEWAH:1.1.6
+[info]   | +-com.jcraft:jsch:0.1.54
+[info]   | +-com.jcraft:jzlib:1.1.1
+[info]   | +-org.apache.httpcomponents:httpclient:4.5.2
+[info]   | | +-commons-codec:commons-codec:1.15
+[info]   | | +-commons-codec:commons-codec:1.9 (evicted by: 1.15)
+[info]   | | +-commons-logging:commons-logging:1.2
+[info]   | | +-org.apache.httpcomponents:httpcore:4.4.4
+[info]   | | 
+[info]   | +-org.slf4j:slf4j-api:1.7.2
+[info]   | 
+[info]   +-org.yaml:snakeyaml:1.25
+[info]   +-uk.gov.hmrc:sbt-git-versioning:2.4.0
+[info]   | +-com.typesafe.sbt:sbt-git:1.0.0
+[info]   | | +-org.eclipse.jgit:org.eclipse.jgit:4.11.9.201909030838-r
+[info]   | | | +-com.googlecode.javaewah:JavaEWAH:1.1.6
+[info]   | | | +-com.jcraft:jsch:0.1.54
+[info]   | | | +-com.jcraft:jzlib:1.1.1
+[info]   | | | +-org.apache.httpcomponents:httpclient:4.5.2
+[info]   | | | | +-commons-codec:commons-codec:1.15
+[info]   | | | | +-commons-codec:commons-codec:1.9 (evicted by: 1.15)
+[info]   | | | | +-commons-logging:commons-logging:1.2
+[info]   | | | | +-org.apache.httpcomponents:httpcore:4.4.4
+[info]   | | | | 
+[info]   | | | +-org.slf4j:slf4j-api:1.7.2
+[info]   | | | 
+[info]   | | +-org.eclipse.jgit:org.eclipse.jgit:4.9.0.201710071750-r (evicted by: 4...
+[info]   | | 
+[info]   | +-uk.gov.hmrc:release-versioning_2.12:0.17.0 [S]
+[info]   |   +-com.github.scopt:scopt_2.12:3.7.1 [S]
+[info]   |   +-org.typelevel:cats-core_2.12:1.2.0 [S]
+[info]   |     +-org.typelevel:cats-kernel_2.12:1.2.0 [S]
+[info]   |     +-org.typelevel:cats-macros_2.12:1.2.0 [S]
+[info]   |     | +-org.typelevel:machinist_2.12:0.6.4 [S]
+[info]   |     |   +-org.scala-lang:scala-reflect:2.12.16 [S]
+[info]   |     |   
+[info]   |     +-org.typelevel:machinist_2.12:0.6.4 [S]
+[info]   |       +-org.scala-lang:scala-reflect:2.12.16 [S]
+[info]   |       
+[info]   +-uk.gov.hmrc:sbt-setting-keys:0.3.0
+[info]   +-uk.gov.hmrc:sbt-settings:4.11.0
+[info]     +-com.eed3si9n:sbt-buildinfo:0.7.0
+[info]     +-de.heikoseeberger:sbt-header:4.1.0 (evicted by: 5.7.0)
+[info]     +-de.heikoseeberger:sbt-header:5.7.0
+[info]     +-uk.gov.hmrc:sbt-git-stamp:6.2.0
+[info]       +-com.github.nscala-time:nscala-time_2.12:2.22.0 [S]
+[info]       | +-joda-time:joda-time:2.10.1
+[info]       | +-org.joda:joda-convert:2.2.0
+[info]       | 
+[info]       +-org.eclipse.jgit:org.eclipse.jgit:4.11.9.201909030838-r
+[info]         +-com.googlecode.javaewah:JavaEWAH:1.1.6
+[info]         +-com.jcraft:jsch:0.1.54
+[info]         +-com.jcraft:jzlib:1.1.1
+[info]         +-org.apache.httpcomponents:httpclient:4.5.2
+[info]         | +-commons-codec:commons-codec:1.15
+[info]         | +-commons-codec:commons-codec:1.9 (evicted by: 1.15)
+[info]         | +-commons-logging:commons-logging:1.2
+[info]         | +-org.apache.httpcomponents:httpcore:4.4.4
+[info]         | 
+[info]         +-org.slf4j:slf4j-api:1.7.2
+[info]         
+[success] Total time: 1 s, completed 10-Aug-2022 13:10:05
