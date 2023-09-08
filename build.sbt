@@ -15,9 +15,10 @@ lazy val project = Project("sbt-auto-build", file("."))
     sbtPlugin := true,
     majorVersion := 3,
     isPublicArtefact := true,
-    scalaVersion := "2.12.16",
-    crossSbtVersions := Vector("1.3.4"),
-    addSbtPlugin("de.heikoseeberger" % "sbt-header"         % "5.7.0"),
+    scalaVersion := "2.12.18",
+    crossSbtVersions := Vector("1.3.13"), // to go beyond this will break the scripted tests, which will load the plugin before running the test
+                                          // we need to run `git init` before the plugin is loaded.
+    addSbtPlugin("de.heikoseeberger" % "sbt-header"         % "5.10.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys"   % "0.3.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.13.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-git-versioning" % "2.4.0"),
