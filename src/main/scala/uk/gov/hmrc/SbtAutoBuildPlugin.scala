@@ -17,11 +17,10 @@
 package uk.gov.hmrc
 
 import java.time.LocalDate
-
-import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentStyle, HeaderPlugin, FileType}
+import de.heikoseeberger.sbtheader.{AutomateHeaderPlugin, CommentCreator, CommentStyle, FileType, HeaderPlugin}
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{HeaderLicense, headerLicense, headerMappings, headerSources}
-import sbt.Keys._
-import sbt._
+import sbt.Keys.*
+import sbt.*
 
 object SbtAutoBuildPlugin extends AutoPlugin {
 
@@ -112,10 +111,29 @@ object PublishSettings {
 // private repo -> only copyright headers
 object HeaderSettings {
 
+  private def retainYearCommentCreator(commentStyle: CommentStyle) = {
+    commentStyle.copy(commentCreator = new CommentCreator() {
+      private val datePattern = "(?s).*?(\\d{4}(-\\d{4})?).*".r
+
+      def findYear(header: String): Option[String] = header match {
+        case datePattern(years, _) => Some(years)
+        case _ => None
+      }
+
+      override def apply(text: String, existingText: Option[String]): String = {
+        val newText = commentStyle.commentCreator.apply(text, existingText)
+        existingText
+          .flatMap(findYear)
+          .map(year => newText.replace(SbtAutoBuildPlugin.currentYear, year))
+          .getOrElse(newText)
+      }
+    })
+  }
+
   val commentStyles: Map[FileType, CommentStyle] = Map(
-    FileType.scala   -> CommentStyle.cStyleBlockComment,
-    FileType.conf    -> CommentStyle.hashLineComment,
-    FileType("html") -> CommentStyle.twirlStyleBlockComment
+    FileType.scala   -> retainYearCommentCreator(CommentStyle.cStyleBlockComment),
+    FileType.conf    -> retainYearCommentCreator(CommentStyle.hashLineComment),
+    FileType("html") -> retainYearCommentCreator(CommentStyle.twirlStyleBlockComment)
   )
 
   def apply(forceSourceHeader: SettingKey[Boolean]): Seq[Setting[_]] =
