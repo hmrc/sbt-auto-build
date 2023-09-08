@@ -1,5 +1,3 @@
-$ exec git init
-$ exec git commit --allow-empty -m "Initial commit to allow SbtGitVersioning to function"
 # Test 1) repository.yaml marks repo as private, and LICENSE file is not present
 $ copy-file files/private-repository.yaml repository.yaml
 > reload

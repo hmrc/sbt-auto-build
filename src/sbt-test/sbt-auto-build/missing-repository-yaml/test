@@ -1,4 +1,2 @@
-$ exec git init
-$ exec git commit --allow-empty -m "Initial commit to allow SbtGitVersioning to function"
 # Test 1) missing repository.yaml file
 -> compile

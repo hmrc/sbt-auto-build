@@ -64,10 +64,12 @@ object HmrcResolvers {
 
   private val artifactoryUrl = "https://artefacts.tax.service.gov.uk/artifactory"
 
-  def resolvers(): Seq[Resolver] = Seq(
-    Opts.resolver.sonatypeReleases,
-    Resolver.typesafeRepo("releases")
-  ) ++
+  @annotation.nowarn("msg=deprecated") // Using `sonatypeOssReleases` instead will break clients still on sbt < 1.7
+  def resolvers(): Seq[Resolver] =
+    Seq(
+      Opts.resolver.sonatypeReleases,
+      Resolver.typesafeRepo("releases")
+    ) ++
     // try corporate artifactory before open artifacts, if reachable
     (if (isHealthy(s"$artifactoryUrl/api/system/ping"))
       Seq(
