@@ -1,0 +1,6 @@
+$ exec git init
+$ exec git commit --allow-empty -m "Initial commit to allow SbtGitVersioning to function"
+# Test 1) headers added
+> compile
+# confirm headers were added
+> check
