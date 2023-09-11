@@ -1,2 +1,9 @@
-# Test 1) missing repository.yaml file
--> compile
+# Initially load successfully
+> reload
+# Test 1) invalid repository.yaml file
+$ delete repository.yaml
+$ copy-file files/incorrect-repository.yaml repository.yaml
+-> reload
+# Test 2) missing repository.yaml file
+$ delete repository.yaml
+-> reload

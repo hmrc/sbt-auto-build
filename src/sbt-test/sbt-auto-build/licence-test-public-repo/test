@@ -1,9 +1,8 @@
-# Test 1) repository.yaml marks repo as public, but LICENSE file is missing
-$ copy-file files/public-repository.yaml repository.yaml
+# Test 1) repository.yaml marks repo as public, LICENSE file is present and correct
+> reload
+# Test 2) repository.yaml marks repo as public, but LICENSE file is missing
+$ delete LICENSE
 -> reload
-# Test 2) repository.yaml marks repo as public, LICENSE file is present but not valid Apache v2
+# Test 3) repository.yaml marks repo as public, LICENSE file is present but not valid Apache v2
 $ copy-file files/FAKE_LICENSE LICENSE
 -> reload
-# Test 3) repository.yaml marks repo as public, LICENSE file is present and correct
-$ copy-file files/LICENSE LICENSE
-> reload
