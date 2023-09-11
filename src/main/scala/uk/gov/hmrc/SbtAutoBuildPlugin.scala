@@ -35,23 +35,8 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   override def trigger: PluginTrigger = allRequirements
 
-  // These can be overridden per module or with Global or ThisBuild scopes
-  override def globalSettings: Seq[Setting[_]] = {
-    logger.info(s"SbtAutoBuildPlugin - adding global settings")
-    DefaultBuildSettings.scalaSettings ++ // others to move to buildSettings?
-      SbtBuildInfo() ++
-      DefaultBuildSettings.defaultSettings() ++
-      PublishSettings() ++
-      Seq(resolvers := HmrcResolvers.resolvers()) ++
-      ArtefactDescription() ++
-      Seq(
-        forceLicenceHeader := false
-      )
-  }
+  override lazy val projectSettings: Seq[Setting[_]] = {
 
-  // This changes defaults for settings defined in project settings.
-  // They cannot be overridden with Global or InBuild - they need to be defined explicitly in the module
-  override def projectSettings: Seq[Setting[_]] = {
     // Taken from the sbt-twirl plugin to avoid declaring a full dependency (which this plugin used previously)
     // That caused potential evictions of the `twirl-api` library and inconsistencies depending on the version used by clients
     // See comment on https://jira.tools.tax.service.gov.uk/browse/BDOG-516
@@ -63,6 +48,13 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     Seq(
       Compile / headerSources ++= (Compile / twirlCompileTemplates / sources).value
     ) ++
+      DefaultBuildSettings.scalaSettings ++
+      SbtBuildInfo() ++
+      DefaultBuildSettings.defaultSettings() ++
+      PublishSettings() ++
+      Seq(resolvers := HmrcResolvers.resolvers()) ++
+      ArtefactDescription() ++
+      Seq(forceLicenceHeader := false) ++
       HeaderSettings(forceLicenceHeader)
   }
 }
