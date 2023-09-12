@@ -15,11 +15,10 @@ lazy val project = Project("sbt-auto-build", file("."))
     sbtPlugin := true,
     majorVersion := 3,
     isPublicArtefact := true,
-    scalaVersion := "2.12.16",
-    crossSbtVersions := Vector("1.3.4"),
-    addSbtPlugin("de.heikoseeberger" % "sbt-header"         % "5.7.0"),
+    scalaVersion := "2.12.18",
+    addSbtPlugin("de.heikoseeberger" % "sbt-header"         % "5.10.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys"   % "0.3.0"),
-    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.13.0"),
+    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.14.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-git-versioning" % "2.4.0"),
     libraryDependencies ++= Seq(
       "org.yaml"              %  "snakeyaml"            % "1.25",
@@ -32,7 +31,37 @@ lazy val project = Project("sbt-auto-build", file("."))
       MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2"),
       Resolver.url("HMRC-open-artefacts-ivy2", url("https://open.artefacts.tax.service.gov.uk/ivy2"))(Resolver.ivyStylePatterns)
     ),
-    scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
+    scriptedRun := {
+
+      // sbt >= 1.4, the plugin under test is loaded before running `test` script.
+      // We need to gitify the test projects before loading the plugin.
+      // Hooking in here for now - https://github.com/sbt/sbt/issues/2601
+      import scala.sys.process.Process
+      val scriptedRepoDir = sourceDirectory.value / "sbt-test" / "sbt-auto-build"
+      Process(List("ls"), scriptedRepoDir).lineStream.foreach { f =>
+        val exitCode = Process("git init", scriptedRepoDir / f).#&&(
+          Process(List("git", "commit", "--allow-empty", "-m \"Initial commit to allow SbtGitVersioning to function\""), scriptedRepoDir / f)).!
+        if (exitCode != 0)
+          sys.error(s"Failed to initialise test repos with git - exitCode: $exitCode")
+      }
+
+      scriptedRun.value
+    },
+    scriptedLaunchOpts ++= {
+      val homeDir = sys.props.get("jenkins.home").orElse(sys.props.get("user.home")).getOrElse("")
+      val sbtHome = file(homeDir) / ".sbt"
+      Seq(
+        "-Xmx1024M",
+        "-Dplugin.version=" + version.value,
+        s"-Dsbt.override.build.repos=${sys.props.getOrElse("sbt.override.build.repos", "false")}",
+        // s"-Dsbt.global.base=$sbtHome/.sbt",
+        // Global base is overwritten with <tmp scripted>/global and can not be reconfigured
+        // We have to explicitly set all the params that rely on base
+        s"-Dsbt.boot.directory=${sbtHome / "boot"}",
+        s"-Dsbt.repository.config=${sbtHome / "repositories"}",
+        s"-Dsbt.boot.properties=file:///${sbtHome / "sbt.boot.properties"}",
+      )
+    },
     scriptedBufferLog := false
   )
 

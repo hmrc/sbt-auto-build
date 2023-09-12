@@ -34,7 +34,25 @@ object SbtAutoBuildPlugin extends AutoPlugin {
 
   override def trigger: PluginTrigger = allRequirements
 
-  override lazy val projectSettings: Seq[Setting[_]] = {
+  // These settings are applied first. They can be overridden with Global or ThisBuild scopes or per module.
+  // However they cannot refer to settings defined later.
+  override def globalSettings: Seq[Setting[_]] = {
+    logger.info(s"SbtAutoBuildPlugin - adding global settings")
+    SbtBuildInfo() ++
+      DefaultBuildSettings.defaultSettings() ++
+      PublishSettings() ++
+      Seq(resolvers := HmrcResolvers.resolvers()) ++
+      ArtefactDescription() ++
+      Seq(
+        forceLicenceHeader := false
+      )
+  }
+
+  // These settings are applied after Global or ThisBuild scopes and before module settings. This means
+  // only explicit module settings can override them.
+  // They can however refer to exisiting settings (including module settings).
+  override def projectSettings: Seq[Setting[_]] = {
+    logger.info(s"SbtAutoBuildPlugin - adding projectSettings")
 
     // Taken from the sbt-twirl plugin to avoid declaring a full dependency (which this plugin used previously)
     // That caused potential evictions of the `twirl-api` library and inconsistencies depending on the version used by clients
@@ -42,19 +60,11 @@ object SbtAutoBuildPlugin extends AutoPlugin {
     val twirlCompileTemplates =
       TaskKey[Seq[File]]("twirl-compile-templates", "Compile twirl templates into scala source files")
 
-    logger.info(s"SbtAutoBuildPlugin - adding build settings")
-
-    Seq(
-      Compile / headerSources ++= (Compile / twirlCompileTemplates / sources).value
-    ) ++
-      DefaultBuildSettings.scalaSettings ++
-      SbtBuildInfo() ++
-      DefaultBuildSettings.defaultSettings() ++
-      PublishSettings() ++
-      Seq(resolvers := HmrcResolvers.resolvers()) ++
-      ArtefactDescription() ++
-      Seq(forceLicenceHeader := false) ++
-      HeaderSettings(forceLicenceHeader)
+    DefaultBuildSettings.scalaSettings ++ // these need to be projectSettings since they are customised to the defined scalaVersion and targetJvm
+      Seq(
+        Compile / headerSources ++= (Compile / twirlCompileTemplates / sources).value
+      ) ++
+        HeaderSettings(forceLicenceHeader)
   }
 }
 
@@ -63,10 +73,12 @@ object HmrcResolvers {
 
   private val artifactoryUrl = "https://artefacts.tax.service.gov.uk/artifactory"
 
-  def resolvers(): Seq[Resolver] = Seq(
-    Opts.resolver.sonatypeReleases,
-    Resolver.typesafeRepo("releases")
-  ) ++
+  @annotation.nowarn("msg=deprecated") // Using `sonatypeOssReleases` instead will break clients still on sbt < 1.7
+  def resolvers(): Seq[Resolver] =
+    Seq(
+      Opts.resolver.sonatypeReleases,
+      Resolver.typesafeRepo("releases")
+    ) ++
     // try corporate artifactory before open artifacts, if reachable
     (if (isHealthy(s"$artifactoryUrl/api/system/ping"))
       Seq(
