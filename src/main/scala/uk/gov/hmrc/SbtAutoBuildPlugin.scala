@@ -125,10 +125,10 @@ object HeaderSettings {
 
   private def retainYearCommentCreator(commentStyle: CommentStyle) = {
     commentStyle.copy(commentCreator = new CommentCreator() {
-      private val datePattern = "(?s).*?(\\d{4}(-\\d{4})?).*".r
+      private val datePattern = "(?s).*?(\\d{4}).*".r
 
       def findYear(header: String): Option[String] = header match {
-        case datePattern(years, _) => Some(years)
+        case datePattern(year) => Some(year)
         case _ => None
       }
 
