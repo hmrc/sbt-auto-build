@@ -79,6 +79,8 @@ When enabled sbt-auto-build automatically adds the most commonly used settings i
 * defaultSettings
 * HeaderSettings
 
-It also automatically adds the  *sbt-settings* and *sbt-header* plugins. SBT header is on by default and will generate licence headers in your source files. As a result **you don't have to add licence headers to source files manually**
+It also automatically adds the  *sbt-settings* and *sbt-header* plugins. SBT header is on by default and will generate licence headers in your source files. As a result **you don't have to add licence headers to source files manually**. 
+
+The year of copyright in the header is set on initial creation of the header and is not updated each year, earlier versions took the legally unnecessary step of changing the copyright date every year.
 
 To enable licence headers for IntegrationTests, just ensure you are using `.settings(DefaultBuildSettings.integrationTestSettings())` rather than `.settings(inConfig(IntegrationTest)(Defaults.itSettings))`
