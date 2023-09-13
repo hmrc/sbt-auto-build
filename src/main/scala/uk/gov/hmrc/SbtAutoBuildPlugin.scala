@@ -127,7 +127,7 @@ object HeaderSettings {
     commentStyle.copy(commentCreator = new CommentCreator() {
       private val datePattern = "(?s).*?(\\d{4}).*".r
 
-      def findYear(header: String): Option[String] = header match {
+      private def findYear(header: String): Option[String] = header match {
         case datePattern(year) => Some(year)
         case _ => None
       }

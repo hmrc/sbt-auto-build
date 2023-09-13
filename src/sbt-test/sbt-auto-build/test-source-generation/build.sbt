@@ -17,7 +17,7 @@ lazy val root = (project in file("."))
       val failed = sources.collect { case source if noHeader(source) => source }
       val oldDateUpdated = Source.fromFile("app/OldController.scala").getLines().mkString.contains(s"Copyright ${java.time.Year.now()} HM Revenue & Customs")
       if (failed.nonEmpty || oldDateUpdated) {
-        val message = s"${if (failed.nonEmpty) s"Header was not added to ${failed.mkString(",")}. " else ""}${if (oldDateUpdated) "Header date was updated in app/OdController.scala" else ""}"
+        val message = s"${if (failed.nonEmpty) s"Header was not added to ${failed.mkString(",")}. " else ""}${if (oldDateUpdated) "Header date was updated in app/OldController.scala" else ""}"
         sys.error(message)
       }
     }
