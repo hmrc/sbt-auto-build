@@ -17,8 +17,8 @@ lazy val project = Project("sbt-auto-build", file("."))
     isPublicArtefact := true,
     scalaVersion := "2.12.18",
     addSbtPlugin("de.heikoseeberger" % "sbt-header"         % "5.10.0"),
-    addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys"   % "0.3.0"),
-    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.15.0"),
+    addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys"   % "0.4.0"),
+    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.16.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-git-versioning" % "2.4.0"),
     libraryDependencies ++= Seq(
       "org.yaml"              %  "snakeyaml"            % "1.25",
