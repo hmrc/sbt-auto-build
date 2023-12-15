@@ -79,12 +79,18 @@ When enabled sbt-auto-build automatically adds the most commonly used settings i
 * defaultSettings
 * HeaderSettings
 
-It also automatically adds the  *sbt-settings* and *sbt-header* plugins. SBT header is on by default and will generate licence headers in your source files. As a result **you don't have to add licence headers to source files manually**. 
+It also automatically adds the  *sbt-settings* and *sbt-header* plugins. SBT header is on by default and will generate licence headers in your source files. As a result **you don't have to add licence headers to source files manually**.
 
 The year of copyright in the header is set on initial creation of the header and is not updated each year, earlier versions took the legally unnecessary step of changing the copyright date every year.
 
 To enable licence headers for IntegrationTests, just ensure you are using `.settings(DefaultBuildSettings.integrationTestSettings())` rather than `.settings(inConfig(IntegrationTest)(Defaults.itSettings))`
 
 ## Changes
+### Version 3.17.0
+- Targets JVM 11 by default.
+
+  This will require Scala 2.12 >= 2.12.16 and 2.13 >= 2.13.1.
+### Version 3.15.0
+- Settings now support `ThisBuild` scope.
 ### Version 3.13.0
 - Existing copyright years are no longer replaced with the current year, but preserved.
