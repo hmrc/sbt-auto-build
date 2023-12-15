@@ -88,6 +88,8 @@ To enable licence headers for IntegrationTests, just ensure you are using `.sett
 ## Changes
 ### Version 3.17.0
 - Targets JVM 11 by default.
+
+  This will require Scala 2.12 >= 2.12.16 and 2.13 >= 2.13.1.
 ### Version 3.15.0
 - Settings now support `ThisBuild` scope.
 ### Version 3.13.0
