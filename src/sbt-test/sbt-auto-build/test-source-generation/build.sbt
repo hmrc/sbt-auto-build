@@ -4,7 +4,7 @@ lazy val root = (project in file("."))
   .enablePlugins(play.sbt.PlayScala)
   .settings(
     version      := "0.1",
-    scalaVersion := "2.12.18",
+    scalaVersion := "2.13.12",
     TaskKey[Unit]("check") := {
       val sources = List(
         "app/Controller.scala",
