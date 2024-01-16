@@ -17,15 +17,15 @@ lazy val project = Project("sbt-auto-build", file("."))
     isPublicArtefact := true,
     scalaVersion     := "2.12.18",
     addSbtPlugin("de.heikoseeberger" % "sbt-header"         % "5.10.0"),
-    addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys"   % "0.4.0"),
-    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.20.0"),
+    addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys"   % "0.5.0"),
+    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.21.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-git-versioning" % "2.5.0"),
     libraryDependencies ++= Seq(
       "org.yaml"              %  "snakeyaml"            % "1.25",
       "org.eclipse.jgit"      %  "org.eclipse.jgit"     % "4.11.9.201909030838-r",
       "commons-codec"         %  "commons-codec"        % "1.15", // updates version provided by org.eclipse.jgit
-      "org.scalatest"         %% "scalatest"            % "3.1.0"     % Test,
-      "com.vladsch.flexmark"  %  "flexmark-all"         % "0.35.10"   % Test
+      "org.scalatest"         %% "scalatest"            % "3.2.17" % Test,
+      "com.vladsch.flexmark"  %  "flexmark-all"         % "0.64.8" % Test
     ),
     resolvers := Seq(
       MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2"),
