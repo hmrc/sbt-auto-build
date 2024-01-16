@@ -24,8 +24,8 @@ lazy val project = Project("sbt-auto-build", file("."))
       "org.yaml"              %  "snakeyaml"            % "1.25",
       "org.eclipse.jgit"      %  "org.eclipse.jgit"     % "4.11.9.201909030838-r",
       "commons-codec"         %  "commons-codec"        % "1.15", // updates version provided by org.eclipse.jgit
-      "org.scalatest"         %% "scalatest"            % "3.1.0"     % Test,
-      "com.vladsch.flexmark"  %  "flexmark-all"         % "0.35.10"   % Test
+      "org.scalatest"         %% "scalatest"            % "3.2.17" % Test,
+      "com.vladsch.flexmark"  %  "flexmark-all"         % "0.64.8" % Test
     ),
     resolvers := Seq(
       MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2"),
