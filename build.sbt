@@ -1,7 +1,7 @@
 import java.time.LocalDate
 
-import uk.gov.hmrc.DefaultBuildSettings
-import uk.gov.hmrc.SbtBuildInfo
+import de.heikoseeberger.sbtheader.{CommentCreator, CommentStyle}
+import uk.gov.hmrc.{SbtBuildInfo, DefaultBuildSettings}
 
 lazy val project = Project("sbt-auto-build", file("."))
   .enablePlugins(SbtPlugin, AutomateHeaderPlugin)
@@ -12,10 +12,10 @@ lazy val project = Project("sbt-auto-build", file("."))
       headerSettings
   )
   .settings(
-    sbtPlugin := true,
-    majorVersion := 3,
+    sbtPlugin        := true,
+    majorVersion     := 3,
     isPublicArtefact := true,
-    scalaVersion := "2.12.18",
+    scalaVersion     := "2.12.18",
     addSbtPlugin("de.heikoseeberger" % "sbt-header"         % "5.10.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys"   % "0.4.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.20.0"),
@@ -66,5 +66,25 @@ lazy val project = Project("sbt-auto-build", file("."))
   )
 
 val headerSettings = Seq(
-    headerLicense := Some(HeaderLicense.ALv2(LocalDate.now().getYear.toString, "HM Revenue & Customs"))
-  )
+  headerLicense  := Some(HeaderLicense.ALv2(LocalDate.now().getYear.toString, "HM Revenue & Customs")),
+  headerMappings := headerMappings.value.mapValues(retainYearCommentCreator)
+)
+
+def retainYearCommentCreator(commentStyle: CommentStyle) =
+  commentStyle.copy(commentCreator = new CommentCreator() {
+    private val datePattern = "(?s).*?(\\d{4}).*".r
+
+    private def findYear(header: String): Option[String] =
+      header match {
+        case datePattern(year) => Some(year)
+        case _                 => None
+      }
+
+    override def apply(text: String, existingText: Option[String]): String = {
+      val newText = commentStyle.commentCreator.apply(text, existingText)
+      existingText
+        .flatMap(findYear)
+        .map(year => newText.replace(LocalDate.now().getYear.toString, year))
+        .getOrElse(newText)
+    }
+  })
