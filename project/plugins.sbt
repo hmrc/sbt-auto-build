@@ -4,4 +4,4 @@ resolvers += Resolver.url("HMRC-open-artefacts-ivy2", url("https://open.artefact
 addSbtPlugin("de.heikoseeberger" % "sbt-header"         % "5.10.0")
 addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.20.0")
 addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys"   % "0.4.0")
-addSbtPlugin("uk.gov.hmrc"       % "sbt-git-versioning" % "2.4.0")
+addSbtPlugin("uk.gov.hmrc"       % "sbt-git-versioning" % "2.5.0")
