@@ -24,9 +24,9 @@ import scala.xml._
 object ArtefactDescription {
 
   def apply() = Seq(
-    homepage := GitUtils.homepage,
+    homepage             := GitUtils.homepage,
     organizationHomepage := Some(url("https://www.gov.uk/government/organisations/hm-revenue-customs")),
-    scmInfo := buildScmInfo,
+    scmInfo              := buildScmInfo,
 
     // workaround for sbt/sbt#1834
     pomPostProcess := {
@@ -50,8 +50,9 @@ object ArtefactDescription {
     }
   )
 
-  def buildScmInfo: Option[ScmInfo] = for {
-      connUrl <- GitUtils.findRemoteConnectionUrl;
+  def buildScmInfo: Option[ScmInfo] =
+    for {
+      connUrl    <- GitUtils.remoteConnectionUrl
       browserUrl <- GitUtils.browserUrl
     } yield ScmInfo(url(browserUrl), connUrl)
 }
