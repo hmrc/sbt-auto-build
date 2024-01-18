@@ -16,43 +16,22 @@
 
 package uk.gov.hmrc
 
-import sbt.Keys.{developers, homepage, organizationHomepage, pomPostProcess, scmInfo}
+import sbt.Keys.{homepage, organizationHomepage, scmInfo}
 import sbt.{ScmInfo, url}
-import scala.xml.transform.{RewriteRule, RuleTransformer}
-import scala.xml._
 
 object ArtefactDescription {
 
-  def apply() = Seq(
-    homepage             := GitUtils.homepage,
-    organizationHomepage := Some(url("https://www.gov.uk/government/organisations/hm-revenue-customs")),
-    scmInfo              := buildScmInfo,
+  def apply(): Seq[sbt.Def.Setting[_]] =
+    apply(GitUtils)
 
-    // workaround for sbt/sbt#1834
-    pomPostProcess := {
-      node: Node =>
-        new RuleTransformer(new RewriteRule {
-          override def transform(node: Node): NodeSeq = node match {
-            case e: Elem if e.label == "developers" =>
-              <developers>
-                {developers.value.map { dev =>
-                <developer>
-                  <id>{dev.id}</id>
-                  <name>{dev.name}</name>
-                  <email>{dev.email}</email>
-                  <url>{dev.url}</url>
-                </developer>
-              }}
-              </developers>
-            case _ => node
-          }
-        }).transform(node).head
-    }
-  )
-
-  def buildScmInfo: Option[ScmInfo] =
-    for {
-      connUrl    <- GitUtils.remoteConnectionUrl
-      browserUrl <- GitUtils.browserUrl
-    } yield ScmInfo(url(browserUrl), connUrl)
+  protected[hmrc] def apply(gitUtils: GitUtils): Seq[sbt.Def.Setting[_]] =
+    Seq(
+      homepage             := gitUtils.homepage,
+      organizationHomepage := Some(url("https://www.gov.uk/government/organisations/hm-revenue-customs")),
+      scmInfo              := {for {
+                                  connUrl    <- gitUtils.remoteConnectionUrl
+                                  browserUrl <- gitUtils.browserUrl
+                                } yield ScmInfo(url(browserUrl), connUrl)
+                              }
+    )
 }
