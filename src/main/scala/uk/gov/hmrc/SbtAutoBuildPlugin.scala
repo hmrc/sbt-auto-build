@@ -123,14 +123,15 @@ object PublishSettings {
 // private repo -> only copyright headers
 object HeaderSettings {
 
-  private def retainYearCommentCreator(commentStyle: CommentStyle) = {
+  private def retainYearCommentCreator(commentStyle: CommentStyle) =
     commentStyle.copy(commentCreator = new CommentCreator() {
       private val datePattern = "(?s).*?(\\d{4}).*".r
 
-      private def findYear(header: String): Option[String] = header match {
-        case datePattern(year) => Some(year)
-        case _ => None
-      }
+      private def findYear(header: String): Option[String] =
+        header match {
+          case datePattern(year) => Some(year)
+          case _                 => None
+        }
 
       override def apply(text: String, existingText: Option[String]): String = {
         val newText = commentStyle.commentCreator.apply(text, existingText)
@@ -140,26 +141,27 @@ object HeaderSettings {
           .getOrElse(newText)
       }
     })
-  }
 
-  val commentStyles: Map[FileType, CommentStyle] = Map(
-    FileType.scala   -> retainYearCommentCreator(CommentStyle.cStyleBlockComment),
-    FileType.conf    -> retainYearCommentCreator(CommentStyle.hashLineComment),
-    FileType("html") -> retainYearCommentCreator(CommentStyle.twirlStyleBlockComment)
-  )
+  val commentStyles: Map[FileType, CommentStyle] =
+    Map(
+      FileType.scala   -> CommentStyle.cStyleBlockComment,
+      FileType.conf    -> CommentStyle.hashLineComment,
+      FileType("html") -> CommentStyle.twirlStyleBlockComment
+    )
 
   def apply(forceSourceHeader: SettingKey[Boolean]): Seq[Setting[_]] =
     Seq(
       headerLicense := {
         if (HeaderUtils.shouldGenerateHeaders(forceSourceHeader.value))
           Some(HeaderLicense.ALv2(SbtAutoBuildPlugin.currentYear, "HM Revenue & Customs"))
-        else Some(HeaderLicense.Custom(
-          s"""|Copyright ${SbtAutoBuildPlugin.currentYear} HM Revenue & Customs
-              |
-              |""".stripMargin
-        ))
+        else
+          Some(HeaderLicense.Custom(
+            s"""|Copyright ${SbtAutoBuildPlugin.currentYear} HM Revenue & Customs
+                |
+                |""".stripMargin
+          ))
       },
-      headerMappings := headerMappings.value ++ commentStyles
+      headerMappings := (headerMappings.value ++ commentStyles).mapValues(retainYearCommentCreator)
     ) ++
     AutomateHeaderPlugin.autoImport.automateHeaderSettings(Compile, Test)
 }

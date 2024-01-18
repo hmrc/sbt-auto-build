@@ -24,48 +24,44 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.scalatest.{BeforeAndAfterEach, Suite}
 
 import scala.reflect.io.File
+import java.nio.file.{Files, Path}
+import java.util.concurrent.atomic.AtomicReference
 
 trait GitRepository extends BeforeAndAfterEach { this: Suite =>
 
-  // The use of var looks like a concurrency issue, but ScalaTest will actually create a new instance of the Suite
-  // per Test, and is the recommended practice. See fixtures section in http://doc.scalatest.org/2.2.6/index.html#org.scalatest.FlatSpec
-  var tempWorkDir: Path = _
-  var gitHelper: GitHelper = _
+  private val gitHelperRef = new AtomicReference[GitHelper]()
 
-  // GitInfo, whilst could be declared in each test, is in the fixture, as it should be cleaned up after each test by calling close()
-  var git: GitUtils = _
+  def gitHelper: GitHelper =
+    gitHelperRef.get()
 
   override def beforeEach(): Unit = {
-    tempWorkDir = java.nio.file.Files.createTempDirectory("git_test")
-    gitHelper = new GitHelper(tempWorkDir)
-    git = new GitUtils {
-      override val repository: Repository = {
-        gitHelper.repo
-      }
-    }
+    val tempWorkDir = Files.createTempDirectory("git_test")
+    gitHelperRef.set(new GitHelper(tempWorkDir))
     super.beforeEach() // To be stackable, must call super.beforeEach
   }
 
-  override def afterEach(): Unit = {
+  override def afterEach(): Unit =
     try {
       super.afterEach() // To be stackable, must call super.afterEach
-    }
-    finally {
+    } finally {
       gitHelper.close()
-      assert(new File(tempWorkDir.toFile).deleteRecursively(), "failed to delete file")
+      assert(new File(gitHelper.tempWorkDir.toFile).deleteRecursively(), "failed to delete file")
     }
-  }
 }
 
-import java.nio.file.Path
+case class GitHelper(tempWorkDir: Path) {
 
-class GitHelper(tempWorkDir: Path) {
+  val jgit: Git =
+    Git.init().setDirectory(tempWorkDir.toFile).call()
 
-  val jgit: Git = org.eclipse.jgit.api.Git.init().setDirectory(tempWorkDir.toFile).call()
-  val repo: Repository = jgit.getRepository
+  val repo: Repository =
+    jgit.getRepository
 
-  val currentBranch: String = repo.getFullBranch
-  val gitConfig: StoredConfig = repo.getConfig
+  val currentBranch: String =
+    repo.getFullBranch
+
+  val gitConfig: StoredConfig =
+    repo.getConfig
 
   def setRemote(name: String, url: String): Unit = {
     gitConfig.setString("remote", name, "url", url)
@@ -103,6 +99,6 @@ class GitHelper(tempWorkDir: Path) {
     commit.call()
   }
 
-  def close(): Unit = jgit.close()
+  def close(): Unit =
+    jgit.close()
 }
-

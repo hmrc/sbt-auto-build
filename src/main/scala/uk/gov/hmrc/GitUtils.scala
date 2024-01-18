@@ -16,31 +16,29 @@
 
 package uk.gov.hmrc
 
-import org.eclipse.jgit.lib.{Repository, StoredConfig}
-import sbt.{ConsoleLogger, URL, _}
+import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import sbt.{url, URL}
 
 object GitUtils extends GitUtils {
-  override lazy val repository: Repository = {
-    import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-    val builder = new FileRepositoryBuilder
-    builder.findGitDir.build
-  }
+  override lazy val repository: Repository =
+    (new FileRepositoryBuilder).findGitDir.build
 }
 
 trait GitUtils {
-  val logger = ConsoleLogger()
   val repository: Repository
-  lazy val config: StoredConfig = repository.getConfig
 
-  def homepage: Option[URL] = browserUrl().map(url)
+  private def remoteUrl: Option[String] =
+    Option(repository.getConfig.getString("remote", "origin", "url"))
 
-  def browserUrl(): Option[String] = remoteUrl().map { url =>
-    "https://" + url.stripPrefix("git@").stripPrefix("git://").stripPrefix("https://").replaceFirst(":", "/").stripSuffix(".git").toLowerCase
-  }
+  def remoteConnectionUrl: Option[String] =
+    remoteUrl
+      .map(url => "git@" + url.stripPrefix("git@").stripPrefix("git://"))
 
-  def findRemoteConnectionUrl(): Option[String] = remoteUrl().map { url =>
-    "git@" + url.stripPrefix("git@").stripPrefix("git://")
-  }
+  def browserUrl: Option[String] =
+    remoteUrl
+      .map(url => "https://" + url.stripPrefix("git@").stripPrefix("git://").stripPrefix("https://").replaceFirst(":", "/").stripSuffix(".git").toLowerCase)
 
-  private def remoteUrl(): Option[String] = Option(config.getString("remote", "origin", "url"))
+  def homepage: Option[URL] =
+    browserUrl.map(url)
 }
