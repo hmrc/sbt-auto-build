@@ -86,6 +86,8 @@ The year of copyright in the header is set on initial creation of the header and
 To enable licence headers for IntegrationTests, just ensure you are using `.settings(DefaultBuildSettings.integrationTestSettings())` rather than `.settings(inConfig(IntegrationTest)(Defaults.itSettings))`
 
 ## Changes
+### Version 3.21.0
+- Fixes report directory (`target/int-test-reports` rather than `target/test-reports`) for `DefaultBuildSettings.itSettings`.
 ### Version 3.18.0
 - `DefaultBuildSettings.itSettings` has changed to `DefaultBuildSettings.itSettings()` and now defaults to a single subprocess (JVM) for all tests which is quicker. If you still require the extra isolation of a distinct subprocess per test, then use `DefaultBuildSettings.itSettings(forkJvmPerTest = true)`.
 ### Version 3.17.0
