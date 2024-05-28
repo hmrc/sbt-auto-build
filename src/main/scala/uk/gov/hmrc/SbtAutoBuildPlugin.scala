@@ -111,6 +111,7 @@ object HmrcResolvers {
 }
 
 object PublishSettings {
+  @annotation.nowarn("msg=deprecated")
   def apply(): Seq[Def.Setting[Boolean]] = Seq(
     publishArtifact := true,
     Test / publishArtifact := false,
