@@ -18,11 +18,11 @@ lazy val project = Project("sbt-auto-build", file("."))
     scalaVersion     := "2.12.18",
     addSbtPlugin("de.heikoseeberger" % "sbt-header"         % "5.10.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-setting-keys"   % "1.0.0"),
-    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.25.0"),
+    addSbtPlugin("uk.gov.hmrc"       % "sbt-settings"       % "4.24.0"),
     addSbtPlugin("uk.gov.hmrc"       % "sbt-git-versioning" % "2.7.0"),
     libraryDependencies ++= Seq(
       "org.yaml"              %  "snakeyaml"            % "2.3",
-      "org.eclipse.jgit"      %  "org.eclipse.jgit"     % "7.0.0.202409031743-r",
+      "org.eclipse.jgit"      %  "org.eclipse.jgit"     % "6.10.0.202406032230-r",
       "org.scalatest"         %% "scalatest"            % "3.2.17" % Test,
       "com.vladsch.flexmark"  %  "flexmark-all"         % "0.64.8" % Test
     ),
